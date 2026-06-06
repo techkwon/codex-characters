@@ -1,0 +1,962 @@
+{
+  "ok": true,
+  "frames_root": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames",
+  "errors": [],
+  "warnings": [],
+  "rows": [
+    {
+      "state": "idle",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/idle/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24145,
+          "bbox": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 212
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/idle/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23574,
+          "bbox": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 221
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/idle/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25010,
+          "bbox": [
+            8,
+            5,
+            183,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 229
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/idle/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23775,
+          "bbox": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 198
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/idle/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23737,
+          "bbox": [
+            5,
+            20,
+            187,
+            187
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 180
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/idle/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23812,
+          "bbox": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 179
+        }
+      ]
+    },
+    {
+      "state": "running-right",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24338,
+          "bbox": [
+            5,
+            8,
+            187,
+            199
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 326
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24722,
+          "bbox": [
+            5,
+            6,
+            187,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 357
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 26038,
+          "bbox": [
+            8,
+            5,
+            183,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 334
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25303,
+          "bbox": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 336
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23702,
+          "bbox": [
+            5,
+            11,
+            187,
+            196
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 264
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24348,
+          "bbox": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 320
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23983,
+          "bbox": [
+            13,
+            5,
+            178,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 361
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-right/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 26690,
+          "bbox": [
+            9,
+            5,
+            182,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 367
+        }
+      ]
+    },
+    {
+      "state": "running-left",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 26690,
+          "bbox": [
+            9,
+            5,
+            182,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 367
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23983,
+          "bbox": [
+            13,
+            5,
+            178,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 361
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24348,
+          "bbox": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 320
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23702,
+          "bbox": [
+            5,
+            11,
+            187,
+            196
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 264
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25303,
+          "bbox": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 336
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 26038,
+          "bbox": [
+            8,
+            5,
+            183,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 334
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24722,
+          "bbox": [
+            5,
+            6,
+            187,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 357
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running-left/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24338,
+          "bbox": [
+            5,
+            8,
+            187,
+            199
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 326
+        }
+      ]
+    },
+    {
+      "state": "waving",
+      "expected_frames": 4,
+      "actual_frames": 4,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waving/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23989,
+          "bbox": [
+            5,
+            5,
+            187,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 110
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waving/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23770,
+          "bbox": [
+            7,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 131
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waving/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23242,
+          "bbox": [
+            7,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 137
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waving/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23709,
+          "bbox": [
+            7,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 148
+        }
+      ]
+    },
+    {
+      "state": "jumping",
+      "expected_frames": 5,
+      "actual_frames": 5,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/jumping/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20722,
+          "bbox": [
+            5,
+            27,
+            187,
+            181
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 185
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/jumping/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24106,
+          "bbox": [
+            5,
+            5,
+            186,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 186
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/jumping/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22560,
+          "bbox": [
+            10,
+            5,
+            182,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 204
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/jumping/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24048,
+          "bbox": [
+            5,
+            6,
+            187,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 201
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/jumping/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20773,
+          "bbox": [
+            5,
+            27,
+            187,
+            181
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 163
+        }
+      ]
+    },
+    {
+      "state": "failed",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23578,
+          "bbox": [
+            10,
+            5,
+            182,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 250
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24958,
+          "bbox": [
+            6,
+            5,
+            186,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 277
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23967,
+          "bbox": [
+            5,
+            11,
+            187,
+            196
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 204
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22546,
+          "bbox": [
+            5,
+            19,
+            187,
+            188
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 227
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23742,
+          "bbox": [
+            6,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 334
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24254,
+          "bbox": [
+            5,
+            11,
+            187,
+            197
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 223
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23995,
+          "bbox": [
+            12,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 237
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/failed/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23177,
+          "bbox": [
+            14,
+            5,
+            177,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 217
+        }
+      ]
+    },
+    {
+      "state": "waiting",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waiting/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24212,
+          "bbox": [
+            7,
+            5,
+            184,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 184
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waiting/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25232,
+          "bbox": [
+            5,
+            5,
+            186,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 210
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waiting/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23830,
+          "bbox": [
+            8,
+            5,
+            184,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 138
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waiting/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23627,
+          "bbox": [
+            8,
+            5,
+            184,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 168
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waiting/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24660,
+          "bbox": [
+            6,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 190
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/waiting/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25098,
+          "bbox": [
+            5,
+            6,
+            187,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 173
+        }
+      ]
+    },
+    {
+      "state": "running",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22295,
+          "bbox": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 194
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22449,
+          "bbox": [
+            9,
+            5,
+            182,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 214
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23646,
+          "bbox": [
+            9,
+            5,
+            183,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 222
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23147,
+          "bbox": [
+            9,
+            5,
+            183,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 195
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22635,
+          "bbox": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 157
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/running/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23488,
+          "bbox": [
+            9,
+            5,
+            182,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 177
+        }
+      ]
+    },
+    {
+      "state": "review",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/review/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23033,
+          "bbox": [
+            5,
+            14,
+            187,
+            194
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 157
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/review/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23118,
+          "bbox": [
+            5,
+            10,
+            187,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 139
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/review/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22431,
+          "bbox": [
+            5,
+            12,
+            187,
+            195
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 196
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/review/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24517,
+          "bbox": [
+            6,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 166
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/review/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20873,
+          "bbox": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 183
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/\u1106\u1175\u1105\u1162\u11af\u1100\u116a\u1112\u1161\u11a8/output/hatch-pet/haro/frames/review/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22685,
+          "bbox": [
+            5,
+            11,
+            187,
+            196
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 197
+        }
+      ]
+    }
+  ]
+}
