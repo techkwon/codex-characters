@@ -15,6 +15,8 @@
     "preview": "vite preview --host 127.0.0.1 --port 1420",
     "release:check": "node scripts/prepare-release.mjs --check",
     "release:prepare": "node scripts/prepare-release.mjs",
+    "signing:check": "node scripts/check-signing-readiness.mjs",
+    "signing:check:strict": "node scripts/check-signing-readiness.mjs --strict",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

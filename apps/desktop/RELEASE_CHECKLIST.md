@@ -7,6 +7,7 @@
 ```bash
 npm run typecheck
 npm run release:check
+npm run signing:check
 npm run build:ui
 cd src-tauri && cargo check
 cd ..
@@ -19,6 +20,7 @@ Windows runner:
 ```powershell
 npm run typecheck
 npm run release:check
+npm run signing:check
 npm run build:ui
 cd src-tauri
 cargo check
@@ -31,6 +33,7 @@ npm run package:portable:win
 
 - TypeScript 오류 없음
 - `package.json`, `package-lock.json`, `Cargo.toml`, `tauri.conf.json` 버전 일치
+- signing readiness 출력에서 unsigned build 상태와 누락 secret을 확인
 - Rust `cargo check` 오류 없음
 - macOS `.app`, `.dmg`, portable `.zip` 생성
 - Windows `msi`, `nsis`, portable `.zip` 생성
@@ -73,7 +76,52 @@ gh workflow run "Desktop Release" --repo techkwon/codex-characters -f tag=deskto
 - Release body가 `apps/desktop/RELEASE_NOTES.md` 내용과 일치
 - 첨부 파일에 macOS `.dmg`, macOS portable `.zip`, Windows `.msi`, Windows NSIS `.exe`, Windows portable `.zip` 포함
 
-## 3. 기능 회귀 확인
+## 3. 서명/노터라이즈 준비
+
+현재 기본 배포는 unsigned portable/test build를 허용합니다. 실제 상업 릴리스에서 서명을 강제하려면 GitHub repository variable `REQUIRE_SIGNING=true`를 설정합니다.
+
+로컬 점검:
+
+```bash
+npm run signing:check
+npm run signing:check:strict
+```
+
+macOS GitHub Secrets:
+
+- `APPLE_CERTIFICATE`: `.p12` certificate base64
+- `APPLE_CERTIFICATE_PASSWORD`: certificate export password
+- `APPLE_SIGNING_IDENTITY`: Developer ID Application signing identity
+- `APPLE_API_KEY`: App Store Connect API key id
+- `APPLE_API_ISSUER`: App Store Connect issuer id
+- `APPLE_API_KEY_PATH`: private key file path on runner, if using key file based notarization
+- `APPLE_ID`: Apple account email, when using Apple ID based notarization
+- `APPLE_PASSWORD`: app-specific password, when using Apple ID based notarization
+- `APPLE_TEAM_ID`: team id, when using Apple ID based notarization
+
+Windows GitHub Secrets:
+
+- `AZURE_CLIENT_ID`
+- `AZURE_TENANT_ID`
+- `AZURE_CLIENT_SECRET`
+
+Windows optional:
+
+- `TAURI_WINDOWS_SIGNTOOL_PATH`
+
+통과 기준:
+
+- unsigned test build: `npm run signing:check`가 누락 항목을 출력하되 exit 0
+- signed release build: `REQUIRE_SIGNING=true npm run signing:check` 또는 `npm run signing:check:strict` 통과
+- GitHub Release가 signed 배포로 전환되면 `Desktop Release` workflow에서 signing readiness가 실패하지 않음
+- macOS notarization과 Windows SmartScreen 완화는 실제 인증서/계정 준비 후 별도 수동 검증
+
+참고:
+
+- Tauri macOS signing/notarization: https://v2.tauri.app/distribute/sign/macos/
+- Tauri Windows signing: https://v2.tauri.app/distribute/sign/windows/
+
+## 4. 기능 회귀 확인
 
 - 펫 클릭 메뉴: 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정 동작
 - 루틴: 과목명, 집중 시간, 쉬는 시간, 알림 시각, 반복 요일, 알림 메시지 저장
@@ -86,7 +134,7 @@ gh workflow run "Desktop Release" --repo techkwon/codex-characters -f tag=deskto
 - 백업 복구: 루틴/설정/바로가기/설치한 펫이 복구되고 외부 펫 경로가 현재 앱 데이터 폴더 기준으로 재작성됨
 - 진단 ZIP: `diagnostics.json`, `state-redacted.json` 포함, 바로가기 대상 URL/파일 경로와 로컬 절대경로는 포함하지 않음
 
-## 4. 초경량 기준
+## 5. 초경량 기준
 
 macOS 기준 측정:
 
@@ -107,7 +155,7 @@ npm run measure:mac
 - 메모리 사용량이 20초 측정 중 계속 증가하지 않음
 - portable ZIP과 DMG 용량이 각각 25MiB 이하
 
-## 5. 배포 산출물
+## 6. 배포 산출물
 
 macOS:
 
@@ -139,7 +187,7 @@ Release:
 - Trigger: `desktop-v*` tag push, manual `workflow_dispatch`
 - Publishes: GitHub Release with macOS and Windows installer/portable assets
 
-## 6. 사용자 데이터 관리
+## 7. 사용자 데이터 관리
 
 - 백업 파일은 `highlearning-pet-reminder-backup-YYYY-MM-DD.zip` 형식을 권장합니다.
 - 백업 ZIP에는 `state.json`과 앱 데이터 폴더의 `pets/`가 포함됩니다.
@@ -147,14 +195,14 @@ Release:
 - 복구 후 설치 펫의 `pet.json`/`spritesheet.webp` 경로는 현재 기기의 앱 데이터 폴더 기준으로 다시 저장됩니다.
 - 계정/서버 없이도 사용자가 루틴, 설정, 바로가기, 설치한 Codex 펫을 이동할 수 있어야 합니다.
 
-## 7. 지원/진단
+## 8. 지원/진단
 
 - 진단 파일은 `highlearning-pet-reminder-diagnostics-YYYY-MM-DD.zip` 형식을 권장합니다.
 - 진단 ZIP은 앱 버전, Tauri 버전, OS/arch, 앱 데이터 폴더 존재 여부, 루틴 수, 설치 펫 요약, 리소스 설정 상태를 포함합니다.
 - 진단 ZIP의 `state-redacted.json`은 루틴 길이/시간 설정과 설치 펫 요약을 포함하되, 루틴 제목/메시지 본문, 사용자 바로가기 대상 URL/파일 경로, 로컬 절대경로는 포함하지 않습니다.
 - 사용자가 문제를 보고할 때 백업 ZIP 대신 진단 ZIP을 먼저 요청합니다.
 
-## 8. 배포 제외 사항
+## 9. 배포 제외 사항
 
 - Mac App Store 등록 제외
 - 계정/서버/클라우드 동기화 제외
