@@ -33,7 +33,7 @@ jobs:
               apps/desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*.app
               apps/desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/portable/*.zip
           - name: Windows x64
-            os: windows-latest
+            os: windows-2025-vs2026
             artifact-name: highlearning-pet-reminder-windows-x64
             build-args: ""
             portable-command: npm run package:portable:win
