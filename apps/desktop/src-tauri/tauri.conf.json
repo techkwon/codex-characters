@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "HighLearning Pet Reminder",
+  "productName": "Codex Pet",
   "version": "0.1.0",
   "identifier": "com.highlearning.petreminder",
   "build": {
@@ -10,14 +10,16 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "HighLearning Pet Reminder",
-        "width": 1120,
-        "height": 760,
-        "minWidth": 940,
-        "minHeight": 620,
-        "visible": true,
+        "label": "main",
+        "title": "Codex Pet Settings",
+        "width": 760,
+        "height": 680,
+        "minWidth": 680,
+        "minHeight": 560,
+        "visible": false,
         "resizable": true
       },
       {
@@ -25,12 +27,14 @@
         "title": "Pet",
         "width": 220,
         "height": 240,
-        "visible": false,
+        "visible": true,
         "decorations": false,
         "transparent": true,
+        "backgroundColor": "#00000000",
         "alwaysOnTop": true,
         "skipTaskbar": true,
-        "resizable": false
+        "resizable": false,
+        "shadow": false
       }
     ],
     "security": {
@@ -69,7 +73,7 @@
       "icons/icon.ico"
     ],
     "category": "Productivity",
-    "shortDescription": "Lightweight study reminders with Codex-compatible pets.",
-    "longDescription": "HighLearning Pet Reminder is a lightweight local study routine reminder app using Codex-compatible animated pets."
+    "shortDescription": "Lightweight standalone Codex-compatible desktop pets.",
+    "longDescription": "Codex Pet is a lightweight standalone desktop pet app with study reminders and Codex-compatible animated pet support."
   }
 }

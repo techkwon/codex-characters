@@ -72,10 +72,22 @@ function checkTauriSecurity() {
   const csp = config.app?.security?.csp;
   const assetProtocol = config.app?.security?.assetProtocol;
   const bundleTargets = new Set(config.bundle?.targets ?? []);
+  const windows = config.app?.windows ?? [];
+  const mainWindow = windows.find((window) => window.label === "main");
+  const petWindow = windows.find((window) => window.label === "pet");
 
-  assert(config.productName === "HighLearning Pet Reminder", "Tauri product name is stable");
+  assert(config.productName === "Codex Pet", "Tauri product name is stable");
   assert(config.identifier === "com.highlearning.petreminder", "Tauri app identifier is stable");
   assert(config.bundle?.active === true, "Tauri bundling is enabled");
+  assert(config.app?.macOSPrivateApi === true, "macOS transparent pet window support is enabled");
+  assert(mainWindow?.visible === false, "main settings window is hidden on launch");
+  assert(mainWindow?.title === "Codex Pet Settings", "main settings window is labelled as settings");
+  assert(petWindow?.visible === true, "standalone pet window is visible on launch");
+  assert(petWindow?.transparent === true, "standalone pet window is transparent");
+  assert(petWindow?.backgroundColor === "#00000000", "standalone pet window background is fully transparent");
+  assert(petWindow?.decorations === false, "standalone pet window has no native chrome");
+  assert(petWindow?.alwaysOnTop === true, "standalone pet window stays above normal windows");
+  assert(petWindow?.shadow === false, "standalone pet window does not draw a card shadow");
   for (const target of ["app", "dmg", "msi", "nsis"]) {
     assert(bundleTargets.has(target), `Tauri bundle target '${target}' is enabled`);
   }
@@ -99,6 +111,7 @@ function checkTauriSecurity() {
   const cargoToml = readText(paths.cargoToml);
   assert(/tauri\s*=\s*\{[^}]*features\s*=\s*\[[^\]]*"protocol-asset"/s.test(cargoToml), "Cargo enables Tauri protocol-asset feature");
   assert(/tauri\s*=\s*\{[^}]*features\s*=\s*\[[^\]]*"tray-icon"/s.test(cargoToml), "Cargo enables Tauri tray-icon feature");
+  assert(/tauri\s*=\s*\{[^}]*features\s*=\s*\[[^\]]*"macos-private-api"/s.test(cargoToml), "Cargo enables Tauri macos-private-api feature");
 }
 
 function checkBuiltinPets() {

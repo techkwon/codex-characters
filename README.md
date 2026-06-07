@@ -77,15 +77,15 @@ codex-characters/
 - `qa/contact-sheet.png`: 행별 애니메이션 프레임을 한눈에 확인하는 검수 이미지
 - `qa/review.json`: 자동 프레임 검사 결과
 
-## HighLearning Pet Reminder 앱
+## Codex Pet 앱
 
-`apps/desktop`에는 Codex 없이 단독 실행되는 학습 알림 앱이 들어 있습니다.
+`apps/desktop`에는 Codex 없이 단독 실행되는 데스크톱 펫 앱이 들어 있습니다.
 
 핵심 방향은 세 가지입니다.
 
 1. 쉬운 설치: 첫 배포는 portable 빌드를 우선합니다.
 2. Codex 펫 호환: `pet.json`과 `spritesheet.webp`를 그대로 읽습니다.
-3. 가벼움: 기본은 트레이/메뉴바 상주, 저주기 리소스 감지, 이벤트 중심 펫 반응입니다.
+3. 가벼움: 기본은 투명한 단독 펫 창, 트레이/메뉴바 상주, 저주기 리소스 감지, 이벤트 중심 펫 반응입니다.
 
 현재 배포 목표:
 
@@ -95,9 +95,10 @@ codex-characters/
 
 상업 수준 v0.2에서 추가된 제품 포인트:
 
-- 펫 클릭 메뉴: 펫을 누르면 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정, 사용자 바로가기를 바로 실행합니다.
+- 단독 펫 런처: 앱 실행 시 큰 화면이 뜨지 않고 투명한 펫만 떠 있습니다.
+- 설정 팝업: 펫을 클릭하면 설정/루틴/펫 관리 화면이 작은 팝업으로 열립니다.
 - 리소스 반응: Rust 백엔드가 CPU, 메모리, 배터리를 낮은 주기로 확인하고 펫 상태와 속도 배지로 보여줍니다.
-- 사용자 바로가기: URL 또는 파일 경로를 등록해 펫 메뉴에서 바로 열 수 있습니다.
+- 사용자 바로가기: URL 또는 파일 경로를 등록해 설정 팝업에서 관리하고 펫 액션으로 확장할 수 있습니다.
 - 로컬 전용 저장: 루틴, 설정, 설치한 펫, 바로가기는 앱 데이터 디렉터리에만 저장합니다.
 - Codex 펫 확장: 로컬 폴더, GitHub 폴더, `pet.json` URL, ZIP URL에서 외부 펫을 추가할 수 있습니다.
 
@@ -159,8 +160,8 @@ npm run measure:mac
 - 알림 시각과 반복 요일에 맞춘 자동 루틴 알림
 - 기본 펫 `Calico`, `Max` 제공
 - 기존 펫 `Haro`, `Airo` 선택 가능
-- 펫 창 열기/닫기
-- 펫 클릭 메뉴에서 주요 기능 바로 실행
+- 앱 실행 시 투명한 단독 펫 표시
+- 펫 클릭 시 설정/루틴/펫 관리 팝업 열기
 - CPU/메모리/배터리 상태에 따른 펫 반응
 - URL/파일 사용자 바로가기 추가, 켜기/끄기, 삭제
 - 로컬 Codex 펫 폴더 가져오기
@@ -171,12 +172,12 @@ npm run measure:mac
 빌드가 끝나면 macOS에서는 다음 산출물이 생성됩니다.
 
 ```text
-apps/desktop/src-tauri/target/release/bundle/macos/HighLearning Pet Reminder.app
-apps/desktop/src-tauri/target/release/bundle/dmg/HighLearning Pet Reminder_0.1.0_aarch64.dmg
-apps/desktop/src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_macos_aarch64_portable.zip
+apps/desktop/src-tauri/target/release/bundle/macos/Codex Pet.app
+apps/desktop/src-tauri/target/release/bundle/dmg/Codex Pet_0.1.0_aarch64.dmg
+apps/desktop/src-tauri/target/release/bundle/portable/Codex-Pet_macos_aarch64_portable.zip
 apps/desktop/src-tauri/target/release/bundle/msi/*.msi
 apps/desktop/src-tauri/target/release/bundle/nsis/*.exe
-apps/desktop/src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_windows_x64_portable.zip
+apps/desktop/src-tauri/target/release/bundle/portable/Codex-Pet_windows_x64_portable.zip
 ```
 
 앱 아이콘은 기본 캐릭터 방향에 맞춘 `HL PET` 브랜드 마크를 사용합니다. 원본 아이콘 세트는 `apps/desktop/src-tauri/icons/`에 있으며 Tauri 번들에 포함됩니다.
@@ -185,9 +186,9 @@ GitHub Actions의 `Desktop Build` 워크플로는 `main` push, pull request, 수
 
 ### 데스크톱 앱 사용 방법
 
-1. 앱을 실행하면 기본 펫은 `Calico`입니다. 왼쪽 펫 목록에서 `Max`, `Haro`, `Airo` 또는 설치한 외부 펫으로 바꿀 수 있습니다.
-2. `펫 창 표시`를 켜면 투명한 작은 펫 창이 뜹니다. 펫 창은 항상 위에 표시되며 작업 중에도 빠르게 누를 수 있습니다.
-3. 펫을 클릭하면 액션 메뉴가 열립니다. 여기서 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정을 바로 실행합니다.
+1. 앱을 실행하면 큰 앱 화면 대신 투명한 작은 펫만 단독으로 뜹니다. 기본 펫은 `Calico`입니다.
+2. 펫을 클릭하면 설정 팝업이 열립니다. 여기서 `Max`, `Haro`, `Airo` 또는 설치한 외부 펫으로 바꿀 수 있습니다.
+3. 설정 팝업에서 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정을 관리합니다.
 4. 루틴 편집에서 알림 시각과 반복 요일을 지정하면 앱 실행 중 해당 시각에 OS 알림을 보냅니다.
 5. `리소스 반응`을 켜면 CPU와 메모리 사용률에 따라 펫 상태와 애니메이션 속도가 바뀝니다.
 6. `배터리 반응`을 켜면 배터리가 있는 기기에서 배터리 잔량도 함께 표시합니다. 배터리가 없는 데스크톱에서는 `BAT -`로 표시됩니다.

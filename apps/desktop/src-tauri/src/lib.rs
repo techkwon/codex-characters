@@ -18,7 +18,7 @@ use sysinfo::System;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Emitter, Manager, State,
+    AppHandle, Emitter, Manager, State, WindowEvent,
 };
 use url::Url;
 use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
@@ -72,7 +72,7 @@ struct QuickAction {
 struct AppSettings {
     #[serde(default = "default_selected_pet_id")]
     selected_pet_id: String,
-    #[serde(default)]
+    #[serde(default = "default_true")]
     pet_window_enabled: bool,
     #[serde(default = "default_animation_mode")]
     animation_mode: String,
@@ -229,7 +229,7 @@ fn default_routine_start_time() -> String {
 fn default_settings() -> AppSettings {
     AppSettings {
         selected_pet_id: default_selected_pet_id(),
-        pet_window_enabled: false,
+        pet_window_enabled: true,
         animation_mode: default_animation_mode(),
         autostart_enabled: false,
         resource_monitor_enabled: true,
@@ -753,7 +753,7 @@ fn is_newer_version(latest: &str, current: &str) -> bool {
 
 fn latest_desktop_release() -> Result<Option<GitHubRelease>> {
     let client = reqwest::blocking::Client::builder()
-        .user_agent("HighLearning-Pet-Reminder")
+        .user_agent("Codex-Pet")
         .timeout(Duration::from_secs(8))
         .build()?;
     let text = client
@@ -833,11 +833,15 @@ fn find_file(root: &Path, name: &str) -> Option<PathBuf> {
 
 #[tauri::command]
 fn load_app_data(app: AppHandle) -> Result<AppData, String> {
-    load_state_inner(&app).map_err(|error| error.to_string())
+    let mut data = load_state_inner(&app).map_err(|error| error.to_string())?;
+    data.settings.pet_window_enabled = true;
+    Ok(data)
 }
 
 #[tauri::command]
 fn save_app_data(app: AppHandle, data: AppData) -> Result<(), String> {
+    let mut data = data;
+    data.settings.pet_window_enabled = true;
     save_state_inner(&app, &data).map_err(|error| error.to_string())
 }
 
@@ -1129,7 +1133,6 @@ fn show_pet_window(app: AppHandle, show: bool) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("pet") {
         if show {
             window.show().map_err(|error| error.to_string())?;
-            window.set_focus().ok();
         } else {
             window.hide().map_err(|error| error.to_string())?;
         }
@@ -1139,8 +1142,12 @@ fn show_pet_window(app: AppHandle, show: bool) -> Result<(), String> {
 
 #[tauri::command]
 fn show_main_section(app: AppHandle, section: String) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("pet") {
+        window.hide().ok();
+    }
     if let Some(window) = app.get_webview_window("main") {
         window.show().map_err(|error| error.to_string())?;
+        window.center().ok();
         window.set_focus().ok();
     }
     app.emit("show-main-section", section)
@@ -1219,9 +1226,9 @@ fn stop_focus_session(runtime: State<'_, Mutex<SessionRuntime>>) -> Result<(), S
 }
 
 fn setup_tray(app: &mut tauri::App) -> Result<()> {
-    let show = MenuItem::with_id(app, "show", "오늘 루틴 보기", true, None::<&str>)?;
+    let show = MenuItem::with_id(app, "show", "설정 열기", true, None::<&str>)?;
     let focus = MenuItem::with_id(app, "focus", "집중 시작", true, None::<&str>)?;
-    let pet = MenuItem::with_id(app, "pet", "펫 창 열기/닫기", true, None::<&str>)?;
+    let pet = MenuItem::with_id(app, "pet", "펫 보이기", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "설정", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "종료", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show, &focus, &pet, &settings, &quit])?;
@@ -1232,6 +1239,7 @@ fn setup_tray(app: &mut tauri::App) -> Result<()> {
             "show" | "settings" => {
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.show();
+                    let _ = window.center();
                     let _ = window.set_focus();
                 }
             }
@@ -1244,11 +1252,7 @@ fn setup_tray(app: &mut tauri::App) -> Result<()> {
             }
             "pet" => {
                 if let Some(window) = app.get_webview_window("pet") {
-                    if window.is_visible().unwrap_or(false) {
-                        let _ = window.hide();
-                    } else {
-                        let _ = window.show();
-                    }
+                    let _ = window.show();
                 }
             }
             "quit" => app.exit(0),
@@ -1275,9 +1279,23 @@ pub fn run() {
         .manage(resource_state.clone())
         .setup(|app| {
             setup_tray(app)?;
+            if let Some(window) = app.get_webview_window("pet") {
+                let _ = window.show();
+            }
             spawn_resource_monitor(app.handle().clone(), resource_state);
             spawn_routine_scheduler(app.handle().clone());
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            if window.label() == "main" {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = window.hide();
+                    if let Some(pet) = window.app_handle().get_webview_window("pet") {
+                        let _ = pet.show();
+                    }
+                }
+            }
         })
         .invoke_handler(tauri::generate_handler![
             load_app_data,
@@ -1300,5 +1318,5 @@ pub fn run() {
             stop_focus_session
         ])
         .run(tauri::generate_context!())
-        .expect("error while running HighLearning Pet Reminder");
+        .expect("error while running Codex Pet");
 }

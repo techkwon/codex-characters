@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $RootDir = Resolve-Path (Join-Path $PSScriptRoot "..")
 $ExePath = Join-Path $RootDir "src-tauri\target\release\highlearning-pet-reminder.exe"
 $OutDir = Join-Path $RootDir "src-tauri\target\release\bundle\portable"
-$PackageDir = Join-Path $OutDir "HighLearning-Pet-Reminder_windows_x64_portable"
+$PackageDir = Join-Path $OutDir "Codex-Pet_windows_x64_portable"
 $ZipPath = "$PackageDir.zip"
 
 if (!(Test-Path $ExePath)) {
@@ -18,12 +18,12 @@ if (Test-Path $ZipPath) {
 }
 
 New-Item -ItemType Directory -Force -Path $PackageDir | Out-Null
-Copy-Item $ExePath (Join-Path $PackageDir "HighLearning Pet Reminder.exe")
+Copy-Item $ExePath (Join-Path $PackageDir "Codex Pet.exe")
 
 @"
-HighLearning Pet Reminder Portable
+Codex Pet Portable
 
-Run "HighLearning Pet Reminder.exe" to start the app.
+Run "Codex Pet.exe" to start the app.
 Data is stored in the local application data directory.
 Codex-compatible pets can be imported from pet.json + spritesheet.webp folders, GitHub URLs, or ZIP URLs.
 "@ | Set-Content -Encoding UTF8 (Join-Path $PackageDir "README.txt")

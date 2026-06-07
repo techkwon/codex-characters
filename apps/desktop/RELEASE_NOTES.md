@@ -1,4 +1,4 @@
-# HighLearning Pet Reminder 0.1.0
+# Codex Pet 0.1.0
 
 Release date: 2026-06-07
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_NAME="HighLearning Pet Reminder"
+APP_NAME="Codex Pet"
 DEFAULT_BUNDLE_DIR="$ROOT_DIR/src-tauri/target/release/bundle"
 TARGET_BUNDLE_DIR="$ROOT_DIR/src-tauri/target/aarch64-apple-darwin/release/bundle"
 

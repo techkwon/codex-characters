@@ -11,8 +11,8 @@ const viteBin = resolve(appDir, "node_modules/vite/bin/vite.js");
 const previewUrl = "http://127.0.0.1:1420";
 const requiredPets = ["calico", "max", "haro", "airo"];
 const requiredUiText = [
-  "HighLearning",
-  "Pet Reminder",
+  "Codex",
+  "Pet Settings",
   "오늘 루틴",
   "학습 루틴",
   "Codex 펫 추가",
@@ -114,7 +114,7 @@ async function main() {
     await waitForPreview(child);
     const html = await fetchText("/");
     assert(html.includes('<div id="root"></div>'), "preview HTML contains React root");
-    assert(html.includes("<title>HighLearning Pet Reminder</title>"), "preview HTML title is correct");
+    assert(html.includes("<title>Codex Pet</title>"), "preview HTML title is correct");
 
     const assetPaths = bundledAssetPaths(html);
     assert(assetPaths.some((path) => path.endsWith(".js")), "preview HTML references JS bundle");

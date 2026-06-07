@@ -146,7 +146,7 @@ jobs:
       - name: Check release notes version
         shell: bash
         run: |
-          grep -q "HighLearning Pet Reminder ${{ steps.release.outputs.version }}" apps/desktop/RELEASE_NOTES.md
+          grep -q "Codex Pet ${{ steps.release.outputs.version }}" apps/desktop/RELEASE_NOTES.md
 
       - name: Download desktop artifacts
         uses: actions/download-artifact@v7
@@ -168,7 +168,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release.outputs.tag }}
-          name: HighLearning Pet Reminder ${{ steps.release.outputs.version }}
+          name: Codex Pet ${{ steps.release.outputs.version }}
           body_path: apps/desktop/RELEASE_NOTES.md
           files: dist-release/*
           draft: false

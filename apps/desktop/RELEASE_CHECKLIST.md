@@ -1,4 +1,4 @@
-# HighLearning Pet Reminder Release Checklist
+# Codex Pet Release Checklist
 
 상업 배포 전에 매번 확인할 항목입니다.
 
@@ -78,7 +78,7 @@ gh workflow run "Desktop Release" --repo techkwon/codex-characters -f tag=deskto
 
 릴리스 확인:
 
-- GitHub Release 제목이 `HighLearning Pet Reminder X.Y.Z` 형식
+- GitHub Release 제목이 `Codex Pet X.Y.Z` 형식
 - Release body가 `apps/desktop/RELEASE_NOTES.md` 내용과 일치
 - 첨부 파일에 macOS `.dmg`, macOS portable `.zip`, Windows `.msi`, Windows NSIS `.exe`, Windows portable `.zip` 포함
 
@@ -170,9 +170,9 @@ npm run measure:mac
 macOS:
 
 ```text
-src-tauri/target/release/bundle/macos/HighLearning Pet Reminder.app
-src-tauri/target/release/bundle/dmg/HighLearning Pet Reminder_0.1.0_aarch64.dmg
-src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_macos_aarch64_portable.zip
+src-tauri/target/release/bundle/macos/Codex Pet.app
+src-tauri/target/release/bundle/dmg/Codex Pet_0.1.0_aarch64.dmg
+src-tauri/target/release/bundle/portable/Codex-Pet_macos_aarch64_portable.zip
 ```
 
 Windows는 별도 Windows 환경에서 `npm run build` 후 `msi`, `nsis`, portable ZIP을 확인합니다.
@@ -182,7 +182,7 @@ Windows:
 ```text
 src-tauri/target/release/bundle/msi/*.msi
 src-tauri/target/release/bundle/nsis/*.exe
-src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_windows_x64_portable.zip
+src-tauri/target/release/bundle/portable/Codex-Pet_windows_x64_portable.zip
 ```
 
 CI:
@@ -207,7 +207,7 @@ Update check:
 
 ## 7. 사용자 데이터 관리
 
-- 백업 파일은 `highlearning-pet-reminder-backup-YYYY-MM-DD.zip` 형식을 권장합니다.
+- 백업 파일은 `codex-pet-backup-YYYY-MM-DD.zip` 형식을 권장합니다.
 - 백업 ZIP에는 `state.json`과 앱 데이터 폴더의 `pets/`가 포함됩니다.
 - 복구 시 ZIP 내부 경로를 검증하고 `state.json` 파싱에 실패하면 복구를 중단합니다.
 - 복구 후 설치 펫의 `pet.json`/`spritesheet.webp` 경로는 현재 기기의 앱 데이터 폴더 기준으로 다시 저장됩니다.
@@ -215,7 +215,7 @@ Update check:
 
 ## 8. 지원/진단
 
-- 진단 파일은 `highlearning-pet-reminder-diagnostics-YYYY-MM-DD.zip` 형식을 권장합니다.
+- 진단 파일은 `codex-pet-diagnostics-YYYY-MM-DD.zip` 형식을 권장합니다.
 - 진단 ZIP은 앱 버전, Tauri 버전, OS/arch, 앱 데이터 폴더 존재 여부, 루틴 수, 설치 펫 요약, 리소스 설정 상태를 포함합니다.
 - 진단 ZIP의 `state-redacted.json`은 루틴 길이/시간 설정과 설치 펫 요약을 포함하되, 루틴 제목/메시지 본문, 사용자 바로가기 대상 URL/파일 경로, 로컬 절대경로는 포함하지 않습니다.
 - 사용자가 문제를 보고할 때 백업 ZIP 대신 진단 ZIP을 먼저 요청합니다.

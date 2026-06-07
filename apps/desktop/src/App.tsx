@@ -113,7 +113,7 @@ const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 const fallbackData: AppData = {
   settings: {
     selectedPetId: "calico",
-    petWindowEnabled: false,
+    petWindowEnabled: true,
     animationMode: "event",
     autostartEnabled: false,
     resourceMonitorEnabled: true,
@@ -213,7 +213,7 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
         warnings: [],
       } as T;
     }
-    if (command === "app_data_location") return "/preview/highlearning-pet-reminder" as T;
+    if (command === "app_data_location") return "/preview/codex-pet" as T;
     if (command === "check_for_updates") {
       return {
         currentVersion: "0.1.0",
@@ -381,7 +381,7 @@ function PetWindow({
   const level = resourceLevel(resource);
   const speedMs = level === "높음" ? 150 : level === "보통" ? 220 : 320;
   return (
-    <main className="pet-window" onClick={onToggleMenu}>
+    <main className="pet-window" onPointerDown={onToggleMenu}>
       <PetSprite pet={pet} state={petState} active={true} size={188} speedMs={speedMs} />
       <div className={`resource-pill level-${level}`}>
         CPU {Math.round(resource?.cpuPercent ?? 0)}% · MEM {Math.round(resource?.memoryPercent ?? 0)}%
@@ -451,8 +451,11 @@ function App() {
 
   useEffect(() => {
     if (isTauriRuntime()) {
-      setWindowLabel(getCurrentWindow().label);
+      const label = getCurrentWindow().label;
+      document.documentElement.dataset.window = label;
+      setWindowLabel(label);
     } else {
+      document.documentElement.dataset.window = "main";
       setWindowLabel("main");
     }
     Promise.all([
@@ -479,7 +482,7 @@ function App() {
       listen<{ subject: string; phase: string }>("session-phase-complete", async (event) => {
         const phaseLabel = event.payload.phase === "focus" ? "집중" : "휴식";
         setPetMood("success");
-        await notify("HighLearning Pet Reminder", `${event.payload.subject} ${phaseLabel} 시간이 끝났습니다.`);
+        await notify("Codex Pet", `${event.payload.subject} ${phaseLabel} 시간이 끝났습니다.`);
       }),
       listen<string>("session-complete", async (event) => {
         setSession(null);
@@ -519,8 +522,8 @@ function App() {
   }, [data, windowLabel]);
 
   useEffect(() => {
-    call<void>("show_pet_window", { show: data.settings.petWindowEnabled }).catch(() => undefined);
-  }, [data.settings.petWindowEnabled]);
+    call<void>("show_pet_window", { show: true }).catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     call<void>("set_resource_monitor_settings", {
@@ -538,7 +541,7 @@ function App() {
         menuOpen={quickMenuOpen}
         quickActions={data.settings.quickActions}
         sessionActive={Boolean(session)}
-        onToggleMenu={() => setQuickMenuOpen((value) => !value)}
+        onToggleMenu={() => showMainSection("settings")}
         onStartFocus={startFocus}
         onStopFocus={stopFocus}
         onQuickReminder={quickReminder}
@@ -723,8 +726,8 @@ function App() {
       return;
     }
     const selected = await save({
-      defaultPath: `highlearning-pet-reminder-backup-${new Date().toISOString().slice(0, 10)}.zip`,
-      filters: [{ name: "HighLearning Backup", extensions: ["zip"] }],
+      defaultPath: `codex-pet-backup-${new Date().toISOString().slice(0, 10)}.zip`,
+      filters: [{ name: "Codex Pet Backup", extensions: ["zip"] }],
     });
     if (!selected) return;
     await call<void>("export_app_backup", { path: selected });
@@ -737,8 +740,8 @@ function App() {
       return;
     }
     const selected = await save({
-      defaultPath: `highlearning-pet-reminder-diagnostics-${new Date().toISOString().slice(0, 10)}.zip`,
-      filters: [{ name: "HighLearning Diagnostics", extensions: ["zip"] }],
+      defaultPath: `codex-pet-diagnostics-${new Date().toISOString().slice(0, 10)}.zip`,
+      filters: [{ name: "Codex Pet Diagnostics", extensions: ["zip"] }],
     });
     if (!selected) return;
     await call<void>("export_diagnostics", { path: selected });
@@ -753,7 +756,7 @@ function App() {
     const selected = await open({
       directory: false,
       multiple: false,
-      filters: [{ name: "HighLearning Backup", extensions: ["zip"] }],
+      filters: [{ name: "Codex Pet Backup", extensions: ["zip"] }],
     });
     if (typeof selected !== "string") return;
     const restored = await call<AppData>("import_app_backup", { path: selected });
@@ -802,8 +805,8 @@ function App() {
     <main className="app-shell">
       <aside className="sidebar">
         <div>
-          <p className="eyebrow">HighLearning</p>
-          <h1>Pet Reminder</h1>
+          <p className="eyebrow">Codex</p>
+          <h1>Pet Settings</h1>
         </div>
         <div className="pet-stage" ref={petsRef} onClick={() => setQuickMenuOpen((value) => !value)}>
           <PetSprite
@@ -850,14 +853,7 @@ function App() {
           ))}
         </nav>
         <div className="toggles" ref={settingsRef}>
-          <label>
-            <input
-              type="checkbox"
-              checked={data.settings.petWindowEnabled}
-              onChange={(event) => patchSettings({ petWindowEnabled: event.target.checked })}
-            />
-            펫 창 표시
-          </label>
+          <p className="settings-note">캐릭터는 항상 단독으로 떠 있고, 클릭하면 이 설정 팝업이 열립니다.</p>
           <label>
             <input
               type="checkbox"
