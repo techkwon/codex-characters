@@ -119,6 +119,8 @@ cd src-tauri
 cargo check
 ```
 
+릴리즈 체크리스트와 리소스 측정 기준은 `apps/desktop/RELEASE_CHECKLIST.md`에 정리되어 있습니다.
+
 패키징:
 
 ```bash
@@ -132,6 +134,13 @@ macOS portable ZIP 만들기:
 cd apps/desktop
 npm run build
 npm run package:portable:mac
+```
+
+macOS 리소스 측정:
+
+```bash
+cd apps/desktop
+npm run measure:mac
 ```
 
 앱 기능:

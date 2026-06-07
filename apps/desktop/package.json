@@ -8,6 +8,7 @@
     "dev:ui": "vite --host 127.0.0.1 --port 1420",
     "build": "tauri build",
     "build:ui": "tsc && vite build",
+    "measure:mac": "bash scripts/measure-macos-resources.sh",
     "package:portable:mac": "bash scripts/package-portable-macos.sh",
     "preview": "vite preview --host 127.0.0.1 --port 1420",
     "typecheck": "tsc --noEmit"
