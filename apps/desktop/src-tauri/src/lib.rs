@@ -65,6 +65,8 @@ struct QuickAction {
     name: String,
     target: String,
     enabled: bool,
+    #[serde(default)]
+    icon: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1191,14 +1193,31 @@ fn show_main_section(app: AppHandle, section: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn set_pet_window_size(app: AppHandle, pet_size: u32) -> Result<(), String> {
+fn set_pet_window_size(app: AppHandle, pet_size: u32, menu_open: Option<bool>) -> Result<(), String> {
     let pet_size = pet_size.clamp(120, 320);
     if let Some(window) = app.get_webview_window("pet") {
-        let width = (pet_size + 70) as f64;
-        let height = ((pet_size as f64 * 1.16) + 90.0).round();
+        let menu_open = menu_open.unwrap_or(false);
+        let width = (pet_size + if menu_open { 270 } else { 70 }) as f64;
+        let height = if menu_open {
+            (((pet_size as f64 * 1.16) + 110.0).round()).max(360.0)
+        } else {
+            ((pet_size as f64 * 1.16) + 90.0).round()
+        };
+        let old_position = window.outer_position().ok();
+        let old_size = window.outer_size().ok();
+        let scale_factor = window.scale_factor().unwrap_or(1.0);
         window
             .set_size(Size::Logical(LogicalSize::new(width, height)))
             .map_err(|error| error.to_string())?;
+        if let (Some(position), Some(size)) = (old_position, old_size) {
+            let next_width = (width * scale_factor).round() as i32;
+            let next_height = (height * scale_factor).round() as i32;
+            window
+                .set_position(Position::Physical(
+                    (position.x + size.width as i32 - next_width, position.y + size.height as i32 - next_height).into(),
+                ))
+                .map_err(|error| error.to_string())?;
+        }
     }
     Ok(())
 }

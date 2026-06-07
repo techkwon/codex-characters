@@ -12,6 +12,7 @@ const paths = {
   tauriConfig: resolve(appDir, "src-tauri/tauri.conf.json"),
   cargoToml: resolve(appDir, "src-tauri/Cargo.toml"),
   appTsx: resolve(appDir, "src/App.tsx"),
+  styles: resolve(appDir, "src/styles.css"),
   appRust: resolve(appDir, "src-tauri/src/lib.rs"),
   desktopBuildWorkflow: resolve(repoDir, ".github/workflows/desktop-build.yml"),
   desktopReleaseWorkflow: resolve(repoDir, ".github/workflows/desktop-release.yml"),
@@ -165,11 +166,18 @@ function checkReleaseChecklist() {
 function checkStandalonePetExperience() {
   const appTsx = readText(paths.appTsx);
   const appRust = readText(paths.appRust);
+  const styles = readText(paths.styles);
 
-  assert(appTsx.includes("data-tauri-drag-region"), "standalone pet marks the character surface as a native drag region");
-  assert(appTsx.includes("startDragging"), "standalone pet can be dragged from the character surface");
+  assert(appTsx.includes("PhysicalPosition"), "standalone pet can be dragged from the character surface");
+  assert(appTsx.includes("startDragging"), "standalone pet keeps native drag fallback movement");
   assert(appTsx.includes("move_pet_window"), "standalone pet keeps menu-based move fallback controls");
   assert(!appTsx.includes("pet-direct-controls"), "standalone pet does not show always-visible movement controls");
+  assert(appTsx.includes("system:screenshot"), "standalone pet includes screenshot quick action");
+  assert(appTsx.includes("system:calculator"), "standalone pet includes calculator quick action");
+  assert(appTsx.includes("system:notes"), "standalone pet includes notes quick action");
+  assert(appTsx.includes("system:weather"), "standalone pet includes weather quick action");
+  assert(appTsx.includes("pet-resize-grip"), "standalone pet exposes a direct resize grip");
+  assert(styles.includes(".quick-menu-scroll"), "standalone pet menu supports internal scrolling");
   assert(appTsx.includes("place_pet_window_bottom_right"), "standalone pet defaults to the lower-right screen position");
   assert(appTsx.includes("petSize"), "settings expose pet size control");
   assert(appTsx.includes("petSize: 150"), "standalone pet default size is compact");

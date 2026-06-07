@@ -57,6 +57,7 @@ type QuickAction = {
   name: string;
   target: string;
   enabled: boolean;
+  icon?: string;
 };
 
 type PetValidation = {
@@ -115,6 +116,31 @@ type RoutineDue = {
 
 const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
+const defaultQuickActions: QuickAction[] = [
+  { id: "system-screenshot", name: "스크린샷", target: "system:screenshot", enabled: true, icon: "⌘" },
+  { id: "system-calculator", name: "계산기", target: "system:calculator", enabled: true, icon: "=" },
+  { id: "system-notes", name: "메모장", target: "system:notes", enabled: true, icon: "✎" },
+  { id: "system-weather", name: "날씨", target: "system:weather", enabled: true, icon: "☀" },
+];
+
+function withDefaultQuickActions(actions: QuickAction[]) {
+  const byId = new Map(actions.map((action) => [action.id, action]));
+  return [
+    ...defaultQuickActions.map((action) => ({ ...action, ...(byId.get(action.id) ?? {}) })),
+    ...actions.filter((action) => !defaultQuickActions.some((item) => item.id === action.id)),
+  ];
+}
+
+function withDefaultSettings(data: AppData): AppData {
+  return {
+    ...data,
+    settings: {
+      ...data.settings,
+      quickActions: withDefaultQuickActions(data.settings.quickActions ?? []),
+    },
+  };
+}
+
 const fallbackData: AppData = {
   settings: {
     selectedPetId: "calico",
@@ -128,7 +154,7 @@ const fallbackData: AppData = {
     showPetResource: true,
     showPetTimer: true,
     petLayoutVersion: 1,
-    quickActions: [],
+    quickActions: defaultQuickActions,
   },
   routines: [
     {
@@ -262,6 +288,10 @@ function isUrlTarget(target: string) {
   return /^(https?:|mailto:|tel:)/i.test(target.trim());
 }
 
+function isMacPlatform() {
+  return /mac/i.test(navigator.platform);
+}
+
 function resourceLevel(resource: ResourceSnapshot | null) {
   if (!resource) return "대기";
   const pressure = Math.max(resource.cpuPercent, resource.memoryPercent);
@@ -373,36 +403,49 @@ function QuickMenu({
   onShowSettings: () => void;
   onOpenQuickAction: (action: QuickAction) => void;
 }) {
+  const enabledActions = quickActions.filter((action) => action.enabled);
+
   return (
     <div className="quick-menu" onClick={(event) => event.stopPropagation()} onPointerDown={(event) => event.stopPropagation()}>
-      <div className="quick-menu-controls">
-        <button onPointerDown={onStartMove}>이동</button>
-        <button onClick={() => onResizePet(-20)} disabled={petSize <= 120}>
-          작게
-        </button>
-        <button onClick={() => onResizePet(20)} disabled={petSize >= 320}>
-          크게
-        </button>
+      <div className="quick-action-grid">
+        {enabledActions.map((action) => (
+          <button
+            className="quick-action-icon"
+            key={action.id}
+            title={action.name}
+            aria-label={action.name}
+            onClick={() => onOpenQuickAction(action)}
+          >
+            <span>{action.icon ?? "↗"}</span>
+            <small>{action.name}</small>
+          </button>
+        ))}
       </div>
-      <div className="quick-menu-move">
-        <span />
-        <button onClick={() => onMovePet(0, -48)}>위</button>
-        <span />
-        <button onClick={() => onMovePet(-48, 0)}>왼쪽</button>
-        <button onClick={() => onMovePet(0, 48)}>아래</button>
-        <button onClick={() => onMovePet(48, 0)}>오른쪽</button>
+      <div className="quick-menu-scroll">
+        <div className="quick-menu-controls">
+          <button onPointerDown={onStartMove}>이동</button>
+          <button onClick={() => onResizePet(-20)} disabled={petSize <= 120}>
+            작게
+          </button>
+          <button onClick={() => onResizePet(20)} disabled={petSize >= 320}>
+            크게
+          </button>
+        </div>
+        <div className="quick-menu-move">
+          <span />
+          <button onClick={() => onMovePet(0, -48)}>위</button>
+          <span />
+          <button onClick={() => onMovePet(-48, 0)}>왼쪽</button>
+          <button onClick={() => onMovePet(0, 48)}>아래</button>
+          <button onClick={() => onMovePet(48, 0)}>오른쪽</button>
+        </div>
+        <button onClick={sessionActive ? onStopFocus : onStartFocus}>{sessionActive ? "집중 정지" : "집중 시작"}</button>
+        <button onClick={onQuickReminder}>빠른 알림</button>
+        <button onClick={onShowRoutines}>오늘 루틴</button>
+        <button onClick={onShowPets}>펫 변경</button>
+        <button onClick={onShowImport}>펫 추가</button>
+        <button onClick={onShowSettings}>설정</button>
       </div>
-      <button onClick={sessionActive ? onStopFocus : onStartFocus}>{sessionActive ? "집중 정지" : "집중 시작"}</button>
-      <button onClick={onQuickReminder}>빠른 알림</button>
-      <button onClick={onShowRoutines}>오늘 루틴</button>
-      <button onClick={onShowPets}>펫 변경</button>
-      <button onClick={onShowImport}>펫 추가</button>
-      <button onClick={onShowSettings}>설정</button>
-      {quickActions.filter((action) => action.enabled).map((action) => (
-        <button key={action.id} onClick={() => onOpenQuickAction(action)}>
-          {action.name}
-        </button>
-      ))}
     </div>
   );
 }
@@ -421,6 +464,7 @@ function PetWindow({
   onStopFocus,
   onQuickReminder,
   onResizePet,
+  onSetPetSize,
   onMovePet,
   onShowMain,
   onOpenQuickAction,
@@ -438,6 +482,7 @@ function PetWindow({
   onStopFocus: () => void;
   onQuickReminder: () => void;
   onResizePet: (delta: number) => void;
+  onSetPetSize: (size: number) => void;
   onMovePet: (dx: number, dy: number) => void;
   onShowMain: (section?: "routines" | "pets" | "import" | "settings") => void;
   onOpenQuickAction: (action: QuickAction) => void;
@@ -454,6 +499,7 @@ function PetWindow({
     moved: boolean;
     startedAt: number;
   } | null>(null);
+  const resizeStart = useRef<{ x: number; y: number; size: number; pointerId: number } | null>(null);
   const suppressNextClick = useRef(false);
   const statusText = petStatusText(petState, session, resource);
   const resourceText = `CPU ${Math.round(resource?.cpuPercent ?? 0)}% · MEM ${Math.round(resource?.memoryPercent ?? 0)}%${
@@ -483,7 +529,6 @@ function PetWindow({
       startedAt: performance.now(),
     };
     event.currentTarget.setPointerCapture(event.pointerId);
-    startNativeMove();
     if (!isTauriRuntime()) return;
     const appWindow = getCurrentWindow();
     Promise.all([appWindow.outerPosition(), appWindow.scaleFactor()])
@@ -536,6 +581,31 @@ function PetWindow({
     onToggleMenu();
   }
 
+  function handleResizePointerDown(event: PointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    resizeStart.current = { x: event.screenX, y: event.screenY, size: settings.petSize, pointerId: event.pointerId };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    suppressNextClick.current = true;
+  }
+
+  function handleResizePointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const start = resizeStart.current;
+    if (!start) return;
+    const delta = (event.screenX - start.x + event.screenY - start.y) / 2;
+    onSetPetSize(Math.round(Math.min(320, Math.max(120, start.size + delta))));
+  }
+
+  function handleResizePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    resizeStart.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    window.setTimeout(() => {
+      suppressNextClick.current = false;
+    }, 250);
+  }
+
   return (
     <main
       className="pet-window"
@@ -544,16 +614,6 @@ function PetWindow({
       onPointerUp={handlePointerUp}
       onClick={handleClick}
     >
-      <button
-        className="pet-move-handle"
-        data-tauri-drag-region
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          startNativeMove();
-        }}
-      >
-        이동
-      </button>
       {settings.showPetStatus && (
         <div className="pet-bubble">
           {statusText}
@@ -572,6 +632,14 @@ function PetWindow({
           </div>
         )}
       </div>
+      <button
+        className="pet-resize-grip"
+        aria-label="캐릭터 크기 조절"
+        title="크기 조절"
+        onPointerDown={handleResizePointerDown}
+        onPointerMove={handleResizePointerMove}
+        onPointerUp={handleResizePointerUp}
+      />
       {menuOpen && (
         <QuickMenu
           quickActions={quickActions}
@@ -608,6 +676,7 @@ function App() {
   const [importUrl, setImportUrl] = useState("");
   const [quickActionName, setQuickActionName] = useState("");
   const [quickActionTarget, setQuickActionTarget] = useState("");
+  const [quickActionEditingId, setQuickActionEditingId] = useState<string | null>(null);
   const [validation, setValidation] = useState<PetValidation | null>(null);
   const [updateCheck, setUpdateCheck] = useState<UpdateCheck | null>(null);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
@@ -653,10 +722,11 @@ function App() {
       call<RecommendedPet[]>("recommended_pets"),
     ])
       .then(([loadedData, loadedPets, loadedRecommended]) => {
-        setData(loadedData);
+        const nextData = withDefaultSettings(loadedData);
+        setData(nextData);
         setBuiltinPets(loadedPets);
         setRecommendedPets(loadedRecommended);
-        setSelectedRoutineId(loadedData.routines[0]?.id ?? "default-focus");
+        setSelectedRoutineId(nextData.routines[0]?.id ?? "default-focus");
       })
       .catch((error) => setStatus(String(error)));
   }, []);
@@ -684,7 +754,7 @@ function App() {
       }),
       listen<ResourceSnapshot>("resource-snapshot", (event) => setResource(event.payload)),
       listen<AppData>("app-data-updated", (event) => {
-        if (windowLabel !== "main") setData(event.payload);
+        if (windowLabel !== "main") setData(withDefaultSettings(event.payload));
       }),
       listen<RoutineDue>("routine-due", async (event) => {
         const routine = event.payload;
@@ -723,8 +793,8 @@ function App() {
   }, [windowLabel]);
 
   useEffect(() => {
-    call<void>("set_pet_window_size", { petSize: data.settings.petSize }).catch(() => undefined);
-  }, [data.settings.petSize]);
+    call<void>("set_pet_window_size", { petSize: data.settings.petSize, menuOpen: quickMenuOpen }).catch(() => undefined);
+  }, [data.settings.petSize, quickMenuOpen]);
 
   useEffect(() => {
     call<void>("set_resource_monitor_settings", {
@@ -749,6 +819,7 @@ function App() {
         onStopFocus={stopFocus}
         onQuickReminder={quickReminder}
         onResizePet={resizePet}
+        onSetPetSize={setPetSize}
         onMovePet={movePet}
         onShowMain={showMainSection}
         onOpenQuickAction={openQuickAction}
@@ -771,12 +842,17 @@ function App() {
 
   function resizePet(delta: number) {
     const current = dataRef.current;
-    const nextSize = Math.min(320, Math.max(120, current.settings.petSize + delta));
+    setPetSize(current.settings.petSize + delta);
+  }
+
+  function setPetSize(size: number) {
+    const current = dataRef.current;
+    const nextSize = Math.min(320, Math.max(120, size));
     if (nextSize === current.settings.petSize) return;
     const nextData = { ...current, settings: { ...current.settings, petSize: nextSize } };
     dataRef.current = nextData;
     setData(nextData);
-    call<void>("set_pet_window_size", { petSize: nextSize }).catch((error) => setStatus(String(error)));
+    call<void>("set_pet_window_size", { petSize: nextSize, menuOpen: quickMenuOpen }).catch((error) => setStatus(String(error)));
     if (isTauriRuntime() && windowLabel === "pet") {
       call<void>("save_app_data", { data: nextData }).catch((error) => setStatus(String(error)));
     }
@@ -872,7 +948,19 @@ function App() {
       setStatus("브라우저 미리보기에서는 바로가기를 열 수 없습니다.");
       return;
     }
-    if (isUrlTarget(target)) {
+    if (target === "system:screenshot") {
+      if (isMacPlatform()) await openPath("/System/Applications/Utilities/Screenshot.app");
+      else await openUrl("ms-screenclip:");
+    } else if (target === "system:calculator") {
+      if (isMacPlatform()) await openPath("/System/Applications/Calculator.app");
+      else await openUrl("calculator:");
+    } else if (target === "system:notes") {
+      if (isMacPlatform()) await openPath("/System/Applications/Notes.app");
+      else await openPath("notepad.exe");
+    } else if (target === "system:weather") {
+      if (isMacPlatform()) await openPath("/System/Applications/Weather.app");
+      else await openUrl("msnweather:");
+    } else if (isUrlTarget(target)) {
       await openUrl(target);
     } else {
       await openPath(target);
@@ -885,6 +973,18 @@ function App() {
     const name = quickActionName.trim();
     const target = quickActionTarget.trim();
     if (!name || !target) return;
+    if (quickActionEditingId) {
+      patchSettings({
+        quickActions: data.settings.quickActions.map((action) =>
+          action.id === quickActionEditingId ? { ...action, name, target } : action,
+        ),
+      });
+      setQuickActionName("");
+      setQuickActionTarget("");
+      setQuickActionEditingId(null);
+      setStatus(`${name} 바로가기를 수정했습니다.`);
+      return;
+    }
     const action: QuickAction = {
       id: `quick-${Date.now()}`,
       name,
@@ -895,6 +995,18 @@ function App() {
     setQuickActionName("");
     setQuickActionTarget("");
     setStatus(`${name} 바로가기를 추가했습니다.`);
+  }
+
+  function editQuickAction(action: QuickAction) {
+    setQuickActionName(action.name);
+    setQuickActionTarget(action.target);
+    setQuickActionEditingId(action.id);
+  }
+
+  function cancelQuickActionEdit() {
+    setQuickActionName("");
+    setQuickActionTarget("");
+    setQuickActionEditingId(null);
   }
 
   function removeQuickAction(id: string) {
@@ -1146,13 +1258,19 @@ function App() {
           <div className="quick-action-editor">
             <strong>바로가기</strong>
             <input value={quickActionName} onChange={(event) => setQuickActionName(event.target.value)} placeholder="이름" />
-            <input value={quickActionTarget} onChange={(event) => setQuickActionTarget(event.target.value)} placeholder="https:// 또는 파일 경로" />
-            <button onClick={addQuickAction} disabled={!quickActionName.trim() || !quickActionTarget.trim()}>추가</button>
+            <input value={quickActionTarget} onChange={(event) => setQuickActionTarget(event.target.value)} placeholder="system: 또는 https:// 또는 파일 경로" />
+            <div className="quick-action-form-actions">
+              <button onClick={addQuickAction} disabled={!quickActionName.trim() || !quickActionTarget.trim()}>
+                {quickActionEditingId ? "수정" : "추가"}
+              </button>
+              {quickActionEditingId && <button className="ghost" onClick={cancelQuickActionEdit}>취소</button>}
+            </div>
             {data.settings.quickActions.map((action) => (
               <div className="quick-action-row" key={action.id}>
-                <button className={action.enabled ? "selected" : ""} onClick={() => toggleQuickAction(action.id)}>
+                <button className={action.enabled ? "selected" : ""} onClick={() => editQuickAction(action)}>
                   {action.name}
                 </button>
+                <button className="ghost" onClick={() => toggleQuickAction(action.id)}>{action.enabled ? "끄기" : "켜기"}</button>
                 <button className="ghost" onClick={() => removeQuickAction(action.id)}>삭제</button>
               </div>
             ))}
