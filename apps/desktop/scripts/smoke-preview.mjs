@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const appDir = resolve(new URL("..", import.meta.url).pathname);
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const appDir = resolve(scriptDir, "..");
 const distDir = resolve(appDir, "dist");
+const viteBin = resolve(appDir, "node_modules/vite/bin/vite.js");
 const previewUrl = "http://127.0.0.1:1420";
 const requiredPets = ["calico", "max", "haro", "airo"];
 const requiredUiText = [
@@ -47,24 +50,43 @@ async function fetchOk(pathname) {
 
 function waitForPreview(child) {
   return new Promise((resolveReady, rejectReady) => {
-    const timeout = setTimeout(() => {
-      rejectReady(new Error("Vite preview did not become ready within 15 seconds"));
-    }, 15_000);
+    let settled = false;
+    const output = [];
+    const startedAt = Date.now();
 
-    function onData(chunk) {
-      const text = String(chunk);
-      if (text.includes(previewUrl) || text.includes("Local:")) {
-        clearTimeout(timeout);
-        resolveReady(undefined);
-      }
+    function settle(error) {
+      if (settled) return;
+      settled = true;
+      if (error) rejectReady(error);
+      else resolveReady(undefined);
     }
 
-    child.stdout.on("data", onData);
-    child.stderr.on("data", onData);
-    child.once("exit", (code) => {
-      clearTimeout(timeout);
-      rejectReady(new Error(`Vite preview exited early with code ${code}`));
+    async function poll() {
+      while (!settled && Date.now() - startedAt < 20_000) {
+        try {
+          const response = await fetch(previewUrl);
+          if (response.ok) {
+            settle();
+            return;
+          }
+        } catch {
+          // Retry until Vite binds the preview port.
+        }
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, 250));
+      }
+      settle(new Error(`Vite preview did not respond within 20 seconds\n${output.join("")}`));
+    }
+
+    child.stdout.on("data", (chunk) => output.push(String(chunk)));
+    child.stderr.on("data", (chunk) => output.push(String(chunk)));
+    child.once("error", (error) => {
+      settle(error);
     });
+    child.once("exit", (code) => {
+      settle(new Error(`Vite preview exited early with code ${code}\n${output.join("")}`));
+    });
+
+    poll();
   });
 }
 
@@ -80,7 +102,9 @@ async function main() {
     assert(existsSync(resolve(distDir, "pets", pet, "spritesheet.webp")), `dist includes ${pet}/spritesheet.webp`);
   }
 
-  const child = spawn("npm", ["run", "preview", "--", "--strictPort"], {
+  assert(existsSync(viteBin), "Vite binary exists in node_modules");
+
+  const child = spawn(process.execPath, [viteBin, "preview", "--host", "127.0.0.1", "--port", "1420", "--strictPort"], {
     cwd: appDir,
     env: { ...process.env, BROWSER: "none" },
     stdio: ["ignore", "pipe", "pipe"],
