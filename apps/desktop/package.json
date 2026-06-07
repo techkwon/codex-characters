@@ -13,6 +13,8 @@
     "package:portable:mac": "bash scripts/package-portable-macos.sh",
     "package:portable:win": "powershell -ExecutionPolicy Bypass -File scripts/package-portable-windows.ps1",
     "preview": "vite preview --host 127.0.0.1 --port 1420",
+    "release:check": "node scripts/prepare-release.mjs --check",
+    "release:prepare": "node scripts/prepare-release.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

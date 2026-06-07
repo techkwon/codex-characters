@@ -6,6 +6,7 @@
 
 ```bash
 npm run typecheck
+npm run release:check
 npm run build:ui
 cd src-tauri && cargo check
 cd ..
@@ -17,6 +18,7 @@ Windows runner:
 
 ```powershell
 npm run typecheck
+npm run release:check
 npm run build:ui
 cd src-tauri
 cargo check
@@ -28,13 +30,30 @@ npm run package:portable:win
 통과 기준:
 
 - TypeScript 오류 없음
+- `package.json`, `package-lock.json`, `Cargo.toml`, `tauri.conf.json` 버전 일치
 - Rust `cargo check` 오류 없음
 - macOS `.app`, `.dmg`, portable `.zip` 생성
 - Windows `msi`, `nsis`, portable `.zip` 생성
 - GitHub Actions `Desktop Build` workflow에서 macOS arm64와 Windows x64 artifact 업로드
 - 앱 실행 후 첫 화면에서 `Calico`, `Max`, `Haro`, `Airo`가 선택 가능
 
-## 2. 기능 회귀 확인
+## 2. 릴리스 준비
+
+새 버전 준비:
+
+```bash
+npm run release:prepare -- 0.1.1
+```
+
+통과 기준:
+
+- `package.json`, `package-lock.json`, `Cargo.toml`, `tauri.conf.json` 버전이 모두 같은 값으로 갱신됨
+- `RELEASE_NOTES.md`가 현재 버전과 최근 커밋 목록으로 갱신됨
+- 버전 변경 후 `npm run release:check` 통과
+- 릴리스 커밋은 Lore protocol 형식으로 작성
+- 배포 태그는 `desktop-vX.Y.Z` 형식을 사용
+
+## 3. 기능 회귀 확인
 
 - 펫 클릭 메뉴: 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정 동작
 - 루틴: 과목명, 집중 시간, 쉬는 시간, 알림 시각, 반복 요일, 알림 메시지 저장
@@ -47,7 +66,7 @@ npm run package:portable:win
 - 백업 복구: 루틴/설정/바로가기/설치한 펫이 복구되고 외부 펫 경로가 현재 앱 데이터 폴더 기준으로 재작성됨
 - 진단 ZIP: `diagnostics.json`, `state-redacted.json` 포함, 바로가기 대상 URL/파일 경로와 로컬 절대경로는 포함하지 않음
 
-## 3. 초경량 기준
+## 4. 초경량 기준
 
 macOS 기준 측정:
 
@@ -68,7 +87,7 @@ npm run measure:mac
 - 메모리 사용량이 20초 측정 중 계속 증가하지 않음
 - portable ZIP과 DMG 용량이 각각 25MiB 이하
 
-## 4. 배포 산출물
+## 5. 배포 산출물
 
 macOS:
 
@@ -94,7 +113,7 @@ CI:
 - Trigger: `main` push, pull request, manual `workflow_dispatch`
 - Artifacts: `highlearning-pet-reminder-macos-arm64`, `highlearning-pet-reminder-windows-x64`
 
-## 5. 사용자 데이터 관리
+## 6. 사용자 데이터 관리
 
 - 백업 파일은 `highlearning-pet-reminder-backup-YYYY-MM-DD.zip` 형식을 권장합니다.
 - 백업 ZIP에는 `state.json`과 앱 데이터 폴더의 `pets/`가 포함됩니다.
@@ -102,14 +121,14 @@ CI:
 - 복구 후 설치 펫의 `pet.json`/`spritesheet.webp` 경로는 현재 기기의 앱 데이터 폴더 기준으로 다시 저장됩니다.
 - 계정/서버 없이도 사용자가 루틴, 설정, 바로가기, 설치한 Codex 펫을 이동할 수 있어야 합니다.
 
-## 6. 지원/진단
+## 7. 지원/진단
 
 - 진단 파일은 `highlearning-pet-reminder-diagnostics-YYYY-MM-DD.zip` 형식을 권장합니다.
 - 진단 ZIP은 앱 버전, Tauri 버전, OS/arch, 앱 데이터 폴더 존재 여부, 루틴 수, 설치 펫 요약, 리소스 설정 상태를 포함합니다.
 - 진단 ZIP의 `state-redacted.json`은 루틴 길이/시간 설정과 설치 펫 요약을 포함하되, 루틴 제목/메시지 본문, 사용자 바로가기 대상 URL/파일 경로, 로컬 절대경로는 포함하지 않습니다.
 - 사용자가 문제를 보고할 때 백업 ZIP 대신 진단 ZIP을 먼저 요청합니다.
 
-## 7. 배포 제외 사항
+## 8. 배포 제외 사항
 
 - Mac App Store 등록 제외
 - 계정/서버/클라우드 동기화 제외
