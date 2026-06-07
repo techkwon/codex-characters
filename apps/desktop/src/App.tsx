@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/plugin-dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import {
   isPermissionGranted,
@@ -202,6 +202,7 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
         warnings: [],
       } as T;
     }
+    if (command === "app_data_location") return "/preview/highlearning-pet-reminder" as T;
     return undefined as T;
   }
   return invoke<T>(command, args);
@@ -691,6 +692,49 @@ function App() {
     setPetMood("success");
   }
 
+  async function exportBackup() {
+    if (!isTauriRuntime()) {
+      setStatus("브라우저 미리보기에서는 백업을 만들 수 없습니다.");
+      return;
+    }
+    const selected = await save({
+      defaultPath: `highlearning-pet-reminder-backup-${new Date().toISOString().slice(0, 10)}.zip`,
+      filters: [{ name: "HighLearning Backup", extensions: ["zip"] }],
+    });
+    if (!selected) return;
+    await call<void>("export_app_backup", { path: selected });
+    setStatus("설정, 루틴, 설치한 펫 백업을 저장했습니다.");
+  }
+
+  async function importBackup() {
+    if (!isTauriRuntime()) {
+      setStatus("브라우저 미리보기에서는 백업을 가져올 수 없습니다.");
+      return;
+    }
+    const selected = await open({
+      directory: false,
+      multiple: false,
+      filters: [{ name: "HighLearning Backup", extensions: ["zip"] }],
+    });
+    if (typeof selected !== "string") return;
+    const restored = await call<AppData>("import_app_backup", { path: selected });
+    setData(restored);
+    setSelectedRoutineId(restored.routines[0]?.id ?? "");
+    setValidation(null);
+    setStatus("백업을 복구했습니다. 루틴, 설정, 설치한 펫을 다시 불러왔습니다.");
+    setPetMood("success");
+  }
+
+  async function openDataFolder() {
+    const location = await call<string>("app_data_location");
+    if (!isTauriRuntime()) {
+      setStatus(`데이터 폴더: ${location}`);
+      return;
+    }
+    await openPath(location);
+    setStatus("앱 데이터 폴더를 열었습니다.");
+  }
+
   return (
     <main className="app-shell">
       <aside className="sidebar">
@@ -788,6 +832,12 @@ function App() {
                 <button className="ghost" onClick={() => removeQuickAction(action.id)}>삭제</button>
               </div>
             ))}
+          </div>
+          <div className="quick-action-editor">
+            <strong>데이터 관리</strong>
+            <button onClick={exportBackup}>백업 내보내기</button>
+            <button onClick={importBackup}>백업 가져오기</button>
+            <button onClick={openDataFolder}>데이터 폴더 열기</button>
           </div>
         </div>
       </aside>

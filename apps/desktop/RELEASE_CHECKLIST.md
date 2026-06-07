@@ -43,6 +43,8 @@ npm run package:portable:win
 - Codex 펫 추가: 로컬 폴더, GitHub 폴더, `pet.json` URL, ZIP URL 검증
 - 바로가기: URL 열기, 파일 경로 열기, 활성/비활성, 삭제
 - 리소스 반응: CPU/메모리/배터리 배지 표시, 배터리 없는 기기에서 `BAT -` 표시
+- 데이터 관리: ZIP 백업 내보내기, ZIP 백업 가져오기, 앱 데이터 폴더 열기
+- 백업 복구: 루틴/설정/바로가기/설치한 펫이 복구되고 외부 펫 경로가 현재 앱 데이터 폴더 기준으로 재작성됨
 
 ## 3. 초경량 기준
 
@@ -91,7 +93,15 @@ CI:
 - Trigger: `main` push, pull request, manual `workflow_dispatch`
 - Artifacts: `highlearning-pet-reminder-macos-arm64`, `highlearning-pet-reminder-windows-x64`
 
-## 5. 배포 제외 사항
+## 5. 사용자 데이터 관리
+
+- 백업 파일은 `highlearning-pet-reminder-backup-YYYY-MM-DD.zip` 형식을 권장합니다.
+- 백업 ZIP에는 `state.json`과 앱 데이터 폴더의 `pets/`가 포함됩니다.
+- 복구 시 ZIP 내부 경로를 검증하고 `state.json` 파싱에 실패하면 복구를 중단합니다.
+- 복구 후 설치 펫의 `pet.json`/`spritesheet.webp` 경로는 현재 기기의 앱 데이터 폴더 기준으로 다시 저장됩니다.
+- 계정/서버 없이도 사용자가 루틴, 설정, 바로가기, 설치한 Codex 펫을 이동할 수 있어야 합니다.
+
+## 6. 배포 제외 사항
 
 - Mac App Store 등록 제외
 - 계정/서버/클라우드 동기화 제외

@@ -1,8 +1,11 @@
 use anyhow::{anyhow, Context, Result};
+use battery::units::ratio::percent;
+use chrono::{Datelike, Local, Timelike};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::{
-    fs,
-    io::Cursor,
+    fs::{self, File},
+    io::{Cursor, Read, Write},
     path::{Path, PathBuf},
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -11,17 +14,14 @@ use std::{
     thread,
     time::Duration,
 };
-use battery::units::ratio::percent;
-use chrono::{Datelike, Local, Timelike};
-use std::collections::HashSet;
+use sysinfo::System;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, State,
 };
-use sysinfo::System;
 use url::Url;
-use zip::ZipArchive;
+use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -208,8 +208,70 @@ fn pets_dir(app: &AppHandle) -> Result<PathBuf> {
     Ok(dir)
 }
 
+fn normalize_zip_path(path: &Path) -> String {
+    path.components()
+        .filter_map(|component| match component {
+            std::path::Component::Normal(value) => value.to_str(),
+            _ => None,
+        })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+fn add_file_to_zip(zip: &mut ZipWriter<File>, source: &Path, archive_name: &str) -> Result<()> {
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+    zip.start_file(archive_name, options)?;
+    let mut file = File::open(source)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+    zip.write_all(&buffer)?;
+    Ok(())
+}
+
+fn add_dir_to_zip(
+    zip: &mut ZipWriter<File>,
+    root: &Path,
+    current: &Path,
+    prefix: &str,
+) -> Result<()> {
+    if !current.exists() {
+        return Ok(());
+    }
+    for entry in fs::read_dir(current)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            add_dir_to_zip(zip, root, &path, prefix)?;
+        } else {
+            let relative = path.strip_prefix(root)?;
+            let archive_name = format!("{}/{}", prefix, normalize_zip_path(relative));
+            add_file_to_zip(zip, &path, &archive_name)?;
+        }
+    }
+    Ok(())
+}
+
+fn copy_dir_recursive(source: &Path, target: &Path) -> Result<()> {
+    if !source.exists() {
+        return Ok(());
+    }
+    fs::create_dir_all(target)?;
+    for entry in fs::read_dir(source)? {
+        let entry = entry?;
+        let source_path = entry.path();
+        let target_path = target.join(entry.file_name());
+        if source_path.is_dir() {
+            copy_dir_recursive(&source_path, &target_path)?;
+        } else {
+            fs::copy(&source_path, &target_path)?;
+        }
+    }
+    Ok(())
+}
+
 fn read_manifest(path: &Path) -> Result<PetManifest> {
-    let text = fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+    let text =
+        fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
     let manifest: PetManifest = serde_json::from_str(&text).context("pet.json is not valid")?;
     Ok(manifest)
 }
@@ -270,7 +332,8 @@ fn validate_pet_dir(path: &Path) -> PetValidation {
     if !spritesheet.is_file() {
         errors.push(format!("{} 파일이 없습니다.", manifest.spritesheet_path));
     } else {
-        match image::ImageReader::open(&spritesheet).and_then(|reader| reader.with_guessed_format()) {
+        match image::ImageReader::open(&spritesheet).and_then(|reader| reader.with_guessed_format())
+        {
             Ok(reader) => {
                 format = reader.format().map(|value| format!("{value:?}"));
                 match reader.decode() {
@@ -310,7 +373,10 @@ fn validate_pet_dir(path: &Path) -> PetValidation {
 }
 
 fn copy_pet_dir(source: &Path, dest_root: &Path, validation: &PetValidation) -> Result<PetSummary> {
-    let id = validation.id.clone().ok_or_else(|| anyhow!("missing pet id"))?;
+    let id = validation
+        .id
+        .clone()
+        .ok_or_else(|| anyhow!("missing pet id"))?;
     let display_name = validation
         .display_name
         .clone()
@@ -323,14 +389,20 @@ fn copy_pet_dir(source: &Path, dest_root: &Path, validation: &PetValidation) -> 
     let target = dest_root.join(&id);
     fs::create_dir_all(&target)?;
     fs::copy(source.join("pet.json"), target.join("pet.json"))?;
-    fs::copy(source.join(&spritesheet_name), target.join("spritesheet.webp"))?;
+    fs::copy(
+        source.join(&spritesheet_name),
+        target.join("spritesheet.webp"),
+    )?;
     Ok(PetSummary {
         id,
         display_name,
         description,
         source: "installed".to_string(),
         manifest_path: Some(target.join("pet.json").to_string_lossy().to_string()),
-        spritesheet_path: target.join("spritesheet.webp").to_string_lossy().to_string(),
+        spritesheet_path: target
+            .join("spritesheet.webp")
+            .to_string_lossy()
+            .to_string(),
         spritesheet_url: None,
     })
 }
@@ -349,6 +421,23 @@ fn save_state_inner(app: &AppHandle, data: &AppData) -> Result<()> {
     let path = state_path(app)?;
     fs::write(path, serde_json::to_string_pretty(data)?)?;
     Ok(())
+}
+
+fn normalize_installed_pet_paths(app: &AppHandle, mut data: AppData) -> Result<AppData> {
+    let root = app_data_dir(app)?.join("pets");
+    for pet in &mut data.installed_pets {
+        if pet.source != "installed" {
+            continue;
+        }
+        let pet_root = root.join(&pet.id);
+        pet.manifest_path = Some(pet_root.join("pet.json").to_string_lossy().to_string());
+        pet.spritesheet_path = pet_root
+            .join("spritesheet.webp")
+            .to_string_lossy()
+            .to_string();
+        pet.spritesheet_url = None;
+    }
+    Ok(data)
 }
 
 fn battery_snapshot(enabled: bool) -> (Option<f32>, Option<String>) {
@@ -490,7 +579,10 @@ fn github_tree_to_raw(url: &Url) -> Option<(String, String)> {
     let branch = segments[3];
     let folder = segments[4..].join("/");
     let base = format!("https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{folder}");
-    Some((format!("{base}/pet.json"), format!("{base}/spritesheet.webp")))
+    Some((
+        format!("{base}/pet.json"),
+        format!("{base}/spritesheet.webp"),
+    ))
 }
 
 fn github_blob_to_raw(url: &Url) -> Option<String> {
@@ -505,7 +597,9 @@ fn github_blob_to_raw(url: &Url) -> Option<String> {
     let repo = segments[1];
     let branch = segments[3];
     let path = segments[4..].join("/");
-    Some(format!("https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}"))
+    Some(format!(
+        "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}"
+    ))
 }
 
 fn download_bytes(url: &str) -> Result<Vec<u8>> {
@@ -520,13 +614,17 @@ fn write_downloaded_pet(temp: &Path, url: &str) -> Result<PathBuf> {
         let bytes = download_bytes(url)?;
         let mut archive = ZipArchive::new(Cursor::new(bytes))?;
         archive.extract(temp)?;
-        let pet_json = find_file(temp, "pet.json").ok_or_else(|| anyhow!("ZIP 안에서 pet.json을 찾지 못했습니다"))?;
+        let pet_json = find_file(temp, "pet.json")
+            .ok_or_else(|| anyhow!("ZIP 안에서 pet.json을 찾지 못했습니다"))?;
         return Ok(pet_json.parent().unwrap_or(temp).to_path_buf());
     }
 
     if let Some((manifest_url, spritesheet_url)) = github_tree_to_raw(&parsed) {
         fs::write(temp.join("pet.json"), download_bytes(&manifest_url)?)?;
-        fs::write(temp.join("spritesheet.webp"), download_bytes(&spritesheet_url)?)?;
+        fs::write(
+            temp.join("spritesheet.webp"),
+            download_bytes(&spritesheet_url)?,
+        )?;
         return Ok(temp.to_path_buf());
     }
 
@@ -534,7 +632,10 @@ fn write_downloaded_pet(temp: &Path, url: &str) -> Result<PathBuf> {
         if raw.ends_with("pet.json") {
             let base = raw.trim_end_matches("pet.json");
             fs::write(temp.join("pet.json"), download_bytes(&raw)?)?;
-            fs::write(temp.join("spritesheet.webp"), download_bytes(&format!("{base}spritesheet.webp"))?)?;
+            fs::write(
+                temp.join("spritesheet.webp"),
+                download_bytes(&format!("{base}spritesheet.webp"))?,
+            )?;
             return Ok(temp.to_path_buf());
         }
     }
@@ -542,11 +643,16 @@ fn write_downloaded_pet(temp: &Path, url: &str) -> Result<PathBuf> {
     if parsed.path().ends_with("pet.json") {
         let base = url.trim_end_matches("pet.json");
         fs::write(temp.join("pet.json"), download_bytes(url)?)?;
-        fs::write(temp.join("spritesheet.webp"), download_bytes(&format!("{base}spritesheet.webp"))?)?;
+        fs::write(
+            temp.join("spritesheet.webp"),
+            download_bytes(&format!("{base}spritesheet.webp"))?,
+        )?;
         return Ok(temp.to_path_buf());
     }
 
-    Err(anyhow!("지원하는 URL은 GitHub 폴더, pet.json URL, ZIP URL입니다."))
+    Err(anyhow!(
+        "지원하는 URL은 GitHub 폴더, pet.json URL, ZIP URL입니다."
+    ))
 }
 
 fn find_file(root: &Path, name: &str) -> Option<PathBuf> {
@@ -573,6 +679,84 @@ fn load_app_data(app: AppHandle) -> Result<AppData, String> {
 #[tauri::command]
 fn save_app_data(app: AppHandle, data: AppData) -> Result<(), String> {
     save_state_inner(&app, &data).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn app_data_location(app: AppHandle) -> Result<String, String> {
+    app_data_dir(&app)
+        .map(|path| path.to_string_lossy().to_string())
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn export_app_backup(app: AppHandle, path: String) -> Result<(), String> {
+    let data = load_state_inner(&app).map_err(|error| error.to_string())?;
+    let target = PathBuf::from(path);
+    if let Some(parent) = target.parent() {
+        fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+    }
+
+    let file = File::create(&target).map_err(|error| error.to_string())?;
+    let mut zip = ZipWriter::new(file);
+    let state_json = serde_json::to_vec_pretty(&data).map_err(|error| error.to_string())?;
+    zip.start_file(
+        "state.json",
+        SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated),
+    )
+    .map_err(|error| error.to_string())?;
+    zip.write_all(&state_json)
+        .map_err(|error| error.to_string())?;
+
+    let pet_root = app_data_dir(&app)
+        .map_err(|error| error.to_string())?
+        .join("pets");
+    add_dir_to_zip(&mut zip, &pet_root, &pet_root, "pets").map_err(|error| error.to_string())?;
+    zip.finish().map_err(|error| error.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn import_app_backup(app: AppHandle, path: String) -> Result<AppData, String> {
+    let file = File::open(&path).map_err(|error| error.to_string())?;
+    let mut archive = ZipArchive::new(file).map_err(|error| error.to_string())?;
+    let temp = tempfile::tempdir().map_err(|error| error.to_string())?;
+
+    for index in 0..archive.len() {
+        let mut file = archive.by_index(index).map_err(|error| error.to_string())?;
+        let Some(enclosed) = file.enclosed_name().map(|value| value.to_owned()) else {
+            return Err("백업 ZIP 안에 안전하지 않은 경로가 있습니다.".to_string());
+        };
+        let allowed = enclosed == PathBuf::from("state.json") || enclosed.starts_with("pets");
+        if !allowed {
+            continue;
+        }
+        let output = temp.path().join(enclosed);
+        if file.is_dir() {
+            fs::create_dir_all(output).map_err(|error| error.to_string())?;
+            continue;
+        }
+        if let Some(parent) = output.parent() {
+            fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+        }
+        let mut target = File::create(output).map_err(|error| error.to_string())?;
+        std::io::copy(&mut file, &mut target).map_err(|error| error.to_string())?;
+    }
+
+    let state_file = temp.path().join("state.json");
+    let state_text = fs::read_to_string(&state_file)
+        .map_err(|_| "백업 ZIP 안에 state.json이 없습니다.".to_string())?;
+    let data: AppData = serde_json::from_str(&state_text)
+        .map_err(|error| format!("state.json 형식이 올바르지 않습니다: {error}"))?;
+    let app_pet_root = pets_dir(&app).map_err(|error| error.to_string())?;
+    if app_pet_root.exists() {
+        fs::remove_dir_all(&app_pet_root).map_err(|error| error.to_string())?;
+    }
+    copy_dir_recursive(&temp.path().join("pets"), &app_pet_root)
+        .map_err(|error| error.to_string())?;
+    let normalized =
+        normalize_installed_pet_paths(&app, data).map_err(|error| error.to_string())?;
+    save_state_inner(&app, &normalized).map_err(|error| error.to_string())?;
+    Ok(normalized)
 }
 
 #[tauri::command]
@@ -659,8 +843,12 @@ fn install_pet_from_folder(app: AppHandle, path: String) -> Result<PetSummary, S
     if !validation.ok {
         return Err(validation.errors.join("\n"));
     }
-    copy_pet_dir(&path, &pets_dir(&app).map_err(|error| error.to_string())?, &validation)
-        .map_err(|error| error.to_string())
+    copy_pet_dir(
+        &path,
+        &pets_dir(&app).map_err(|error| error.to_string())?,
+        &validation,
+    )
+    .map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -678,8 +866,12 @@ fn install_pet_from_url(app: AppHandle, url: String) -> Result<PetSummary, Strin
     if !validation.ok {
         return Err(validation.errors.join("\n"));
     }
-    copy_pet_dir(&folder, &pets_dir(&app).map_err(|error| error.to_string())?, &validation)
-        .map_err(|error| error.to_string())
+    copy_pet_dir(
+        &folder,
+        &pets_dir(&app).map_err(|error| error.to_string())?,
+        &validation,
+    )
+    .map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -753,7 +945,10 @@ fn start_focus_session(
                 );
                 thread::sleep(Duration::from_secs(1));
             }
-            let _ = app.emit("session-phase-complete", serde_json::json!({ "subject": subject, "phase": phase }));
+            let _ = app.emit(
+                "session-phase-complete",
+                serde_json::json!({ "subject": subject, "phase": phase }),
+            );
         }
         let _ = app.emit("session-complete", &subject);
     });
@@ -762,7 +957,12 @@ fn start_focus_session(
 
 #[tauri::command]
 fn stop_focus_session(runtime: State<'_, Mutex<SessionRuntime>>) -> Result<(), String> {
-    if let Some(cancel) = runtime.lock().map_err(|_| "session lock failed")?.cancel.take() {
+    if let Some(cancel) = runtime
+        .lock()
+        .map_err(|_| "session lock failed")?
+        .cancel
+        .take()
+    {
         cancel.store(true, Ordering::Relaxed);
     }
     Ok(())
@@ -841,6 +1041,9 @@ pub fn run() {
             show_pet_window,
             show_main_section,
             set_resource_monitor_settings,
+            app_data_location,
+            export_app_backup,
+            import_app_backup,
             start_focus_session,
             stop_focus_session
         ])
