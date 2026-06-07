@@ -5,3 +5,4 @@ node_modules/
 dist/
 target/
 apps/desktop/src-tauri/gen/
+.hatch-runs/

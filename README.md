@@ -2,9 +2,27 @@
 
 하이러닝(HighLearning) 캐릭터를 Codex 앱에서 사용할 수 있는 애니메이션 펫 형태로 정리한 저장소입니다.
 
-현재 포함된 캐릭터는 `아이로(Airo)`와 `하로(Haro)`입니다. 두 캐릭터 모두 `hatch-pet` 워크플로우로 생성했고, Codex 펫 런타임에서 바로 읽을 수 있도록 `pet.json`과 `spritesheet.webp`를 함께 제공합니다.
+현재 포함된 캐릭터는 `칼리코(Calico)`, `맥스(Max)`, `아이로(Airo)`, `하로(Haro)`입니다. 모든 캐릭터는 Codex 펫 런타임에서 바로 읽을 수 있도록 `pet.json`과 `spritesheet.webp`를 함께 제공합니다.
 
 ## 포함 캐릭터
+
+### 칼리코(Calico)
+
+첨부 이미지에서 분리한 삼색 고양이형 마스코트입니다.
+
+- 위치: `apps/desktop/public/pets/calico`
+- 런타임 파일: `pet.json`, `spritesheet.webp`
+- 특징: 삼색 털, 큰 눈, 흰 가슴, 작은 목걸이 태그
+- 앱 기본 펫: 예
+
+### 맥스(Max)
+
+첨부 이미지에서 분리한 골든 강아지형 마스코트입니다.
+
+- 위치: `apps/desktop/public/pets/max`
+- 런타임 파일: `pet.json`, `spritesheet.webp`
+- 특징: 골든 털, 처진 귀, 둥근 코, 뼈 모양 목걸이 태그
+- 앱 기본 펫: 예
 
 ### 아이로(Airo)
 
@@ -34,6 +52,8 @@ codex-characters/
       src/
       src-tauri/
       public/pets/
+        calico/
+        max/
   highlearning/
     README.md
     airo/
@@ -102,7 +122,8 @@ npm run build
 - 오늘 루틴 보기
 - 집중 시작/정지
 - 과목명, 집중 시간, 쉬는 시간, 반복 요일, 알림 메시지 편집
-- 기본 펫 `Haro`, `Airo` 선택
+- 기본 펫 `Calico`, `Max` 제공
+- 기존 펫 `Haro`, `Airo` 선택 가능
 - 펫 창 열기/닫기
 - 로컬 Codex 펫 폴더 가져오기
 - GitHub 폴더, `pet.json` URL, ZIP URL에서 펫 가져오기

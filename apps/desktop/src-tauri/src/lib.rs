@@ -101,7 +101,7 @@ struct SessionRuntime {
 fn default_data() -> AppData {
     AppData {
         settings: AppSettings {
-            selected_pet_id: "haro".to_string(),
+            selected_pet_id: "calico".to_string(),
             pet_window_enabled: false,
             animation_mode: "event".to_string(),
             autostart_enabled: false,
@@ -383,6 +383,24 @@ fn save_app_data(app: AppHandle, data: AppData) -> Result<(), String> {
 fn list_builtin_pets() -> Vec<PetSummary> {
     vec![
         PetSummary {
+            id: "calico".to_string(),
+            display_name: "Calico".to_string(),
+            description: "첨부 이미지에서 분리한 삼색 고양이 기본 펫".to_string(),
+            source: "builtin".to_string(),
+            manifest_path: None,
+            spritesheet_path: "/pets/calico/spritesheet.webp".to_string(),
+            spritesheet_url: Some("/pets/calico/spritesheet.webp".to_string()),
+        },
+        PetSummary {
+            id: "max".to_string(),
+            display_name: "Max".to_string(),
+            description: "첨부 이미지에서 분리한 골든 강아지 기본 펫".to_string(),
+            source: "builtin".to_string(),
+            manifest_path: None,
+            spritesheet_path: "/pets/max/spritesheet.webp".to_string(),
+            spritesheet_url: Some("/pets/max/spritesheet.webp".to_string()),
+        },
+        PetSummary {
             id: "haro".to_string(),
             display_name: "Haro".to_string(),
             description: "초록 귀와 노란 볼을 가진 하이러닝 동반자 펫".to_string(),
@@ -406,6 +424,18 @@ fn list_builtin_pets() -> Vec<PetSummary> {
 #[tauri::command]
 fn recommended_pets() -> Vec<RecommendedPet> {
     vec![
+        RecommendedPet {
+            id: "calico".to_string(),
+            display_name: "Calico".to_string(),
+            description: "삼색 고양이 기본 캐릭터".to_string(),
+            url: "https://github.com/techkwon/codex-characters/tree/main/apps/desktop/public/pets/calico".to_string(),
+        },
+        RecommendedPet {
+            id: "max".to_string(),
+            display_name: "Max".to_string(),
+            description: "골든 강아지 기본 캐릭터".to_string(),
+            url: "https://github.com/techkwon/codex-characters/tree/main/apps/desktop/public/pets/max".to_string(),
+        },
         RecommendedPet {
             id: "haro".to_string(),
             display_name: "Haro".to_string(),

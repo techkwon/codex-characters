@@ -73,7 +73,7 @@ const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
 const fallbackData: AppData = {
   settings: {
-    selectedPetId: "haro",
+    selectedPetId: "calico",
     petWindowEnabled: false,
     animationMode: "event",
     autostartEnabled: false,
@@ -93,6 +93,22 @@ const fallbackData: AppData = {
 };
 
 const builtinFallback: PetSummary[] = [
+  {
+    id: "calico",
+    displayName: "Calico",
+    description: "첨부 이미지에서 분리한 삼색 고양이 기본 펫",
+    source: "builtin",
+    spritesheetPath: "/pets/calico/spritesheet.webp",
+    spritesheetUrl: "/pets/calico/spritesheet.webp",
+  },
+  {
+    id: "max",
+    displayName: "Max",
+    description: "첨부 이미지에서 분리한 골든 강아지 기본 펫",
+    source: "builtin",
+    spritesheetPath: "/pets/max/spritesheet.webp",
+    spritesheetUrl: "/pets/max/spritesheet.webp",
+  },
   {
     id: "haro",
     displayName: "Haro",
@@ -122,6 +138,18 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
     if (command === "recommended_pets") {
       return [
         {
+          id: "calico",
+          displayName: "Calico",
+          description: "삼색 고양이 기본 캐릭터",
+          url: "https://github.com/techkwon/codex-characters/tree/main/apps/desktop/public/pets/calico",
+        },
+        {
+          id: "max",
+          displayName: "Max",
+          description: "골든 강아지 기본 캐릭터",
+          url: "https://github.com/techkwon/codex-characters/tree/main/apps/desktop/public/pets/max",
+        },
+        {
           id: "haro",
           displayName: "Haro",
           description: "기본 하이러닝 동반자 캐릭터",
@@ -148,7 +176,7 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
 }
 
 function spriteUrl(pet?: PetSummary) {
-  if (!pet) return "/pets/haro/spritesheet.webp";
+  if (!pet) return "/pets/calico/spritesheet.webp";
   if (pet.spritesheetUrl) return pet.spritesheetUrl;
   if (pet.source === "builtin") return pet.spritesheetPath;
   return convertFileSrc(pet.spritesheetPath);
