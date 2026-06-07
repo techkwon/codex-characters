@@ -126,6 +126,14 @@ cd apps/desktop
 npm run build
 ```
 
+macOS portable ZIP 만들기:
+
+```bash
+cd apps/desktop
+npm run build
+npm run package:portable:mac
+```
+
 앱 기능:
 
 - 오늘 루틴 보기
@@ -147,7 +155,10 @@ npm run build
 ```text
 apps/desktop/src-tauri/target/release/bundle/macos/HighLearning Pet Reminder.app
 apps/desktop/src-tauri/target/release/bundle/dmg/HighLearning Pet Reminder_0.1.0_aarch64.dmg
+apps/desktop/src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_macos_aarch64_portable.zip
 ```
+
+앱 아이콘은 기본 캐릭터 방향에 맞춘 `HL PET` 브랜드 마크를 사용합니다. 원본 아이콘 세트는 `apps/desktop/src-tauri/icons/`에 있으며 Tauri 번들에 포함됩니다.
 
 ### 데스크톱 앱 사용 방법
 
