@@ -25,6 +25,7 @@ type Routine = {
   subject: string;
   focusMinutes: number;
   breakMinutes: number;
+  startTime: string;
   repeatDays: number[];
   enabled: boolean;
   message: string;
@@ -87,6 +88,15 @@ type ResourceSnapshot = {
   batteryState?: string | null;
 };
 
+type RoutineDue = {
+  id: string;
+  subject: string;
+  message: string;
+  focusMinutes: number;
+  breakMinutes: number;
+  startTime: string;
+};
+
 const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
 const fallbackData: AppData = {
@@ -105,6 +115,7 @@ const fallbackData: AppData = {
       subject: "오늘의 학습",
       focusMinutes: 25,
       breakMinutes: 5,
+      startTime: "09:00",
       repeatDays: [1, 2, 3, 4, 5],
       enabled: true,
       message: "오늘의 펫과 함께 집중할 시간입니다.",
@@ -454,6 +465,12 @@ function App() {
         setPetMood("idle");
       }),
       listen<ResourceSnapshot>("resource-snapshot", (event) => setResource(event.payload)),
+      listen<RoutineDue>("routine-due", async (event) => {
+        const routine = event.payload;
+        setPetMood("wait");
+        setStatus(`${routine.subject} 반복 알림이 도착했습니다.`);
+        await notify("학습 루틴 알림", routine.message || `${routine.subject} 집중할 시간입니다.`);
+      }),
       listen<"routines" | "pets" | "import" | "settings">("show-main-section", (event) => {
         if (windowLabel === "main") scrollToSection(event.payload);
       }),
@@ -552,6 +569,7 @@ function App() {
           subject: "새 학습",
           focusMinutes: 25,
           breakMinutes: 5,
+          startTime: "09:00",
           repeatDays: [1, 2, 3, 4, 5],
           enabled: true,
           message: "집중할 시간입니다.",
@@ -854,6 +872,14 @@ function App() {
                   />
                 </label>
               </div>
+              <label>
+                알림 시각
+                <input
+                  type="time"
+                  value={selectedRoutine.startTime}
+                  onChange={(event) => patchRoutine(selectedRoutine.id, { startTime: event.target.value })}
+                />
+              </label>
               <label>
                 알림 메시지
                 <input

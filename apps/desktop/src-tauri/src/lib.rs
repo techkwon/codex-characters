@@ -12,6 +12,8 @@ use std::{
     time::Duration,
 };
 use battery::units::ratio::percent;
+use chrono::{Datelike, Local, Timelike};
+use std::collections::HashSet;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
@@ -49,6 +51,8 @@ struct Routine {
     subject: String,
     focus_minutes: u32,
     break_minutes: u32,
+    #[serde(default = "default_routine_start_time")]
+    start_time: String,
     repeat_days: Vec<u8>,
     enabled: bool,
     message: String,
@@ -152,6 +156,10 @@ fn default_animation_mode() -> String {
     "event".to_string()
 }
 
+fn default_routine_start_time() -> String {
+    "09:00".to_string()
+}
+
 fn default_settings() -> AppSettings {
     AppSettings {
         selected_pet_id: default_selected_pet_id(),
@@ -172,6 +180,7 @@ fn default_data() -> AppData {
             subject: "오늘의 학습".to_string(),
             focus_minutes: 25,
             break_minutes: 5,
+            start_time: default_routine_start_time(),
             repeat_days: vec![1, 2, 3, 4, 5],
             enabled: true,
             message: "오늘의 펫과 함께 집중할 시간입니다.".to_string(),
@@ -411,6 +420,59 @@ fn spawn_resource_monitor(app: AppHandle, state: ResourceMonitorState) {
             let snapshot = collect_resource_snapshot(&mut system, battery_enabled);
             let _ = app.emit("resource-snapshot", snapshot);
             thread::sleep(Duration::from_secs(if pet_visible { 2 } else { 10 }));
+        }
+    });
+}
+
+fn parse_start_time(value: &str) -> Option<(u32, u32)> {
+    let (hour, minute) = value.split_once(':')?;
+    let hour = hour.parse::<u32>().ok()?;
+    let minute = minute.parse::<u32>().ok()?;
+    if hour < 24 && minute < 60 {
+        Some((hour, minute))
+    } else {
+        None
+    }
+}
+
+fn spawn_routine_scheduler(app: AppHandle) {
+    thread::spawn(move || {
+        let mut fired: HashSet<String> = HashSet::new();
+        loop {
+            let now = Local::now();
+            let today_key = now.format("%Y-%m-%d").to_string();
+            fired.retain(|key| key.starts_with(&today_key));
+
+            if let Ok(data) = load_state_inner(&app) {
+                let weekday = now.weekday().num_days_from_sunday() as u8;
+                for routine in data.routines {
+                    if !routine.enabled || !routine.repeat_days.contains(&weekday) {
+                        continue;
+                    }
+                    let Some((hour, minute)) = parse_start_time(&routine.start_time) else {
+                        continue;
+                    };
+                    if now.hour() != hour || now.minute() != minute {
+                        continue;
+                    }
+                    let key = format!("{today_key}:{}", routine.id);
+                    if fired.insert(key) {
+                        let _ = app.emit(
+                            "routine-due",
+                            serde_json::json!({
+                                "id": routine.id,
+                                "subject": routine.subject,
+                                "message": routine.message,
+                                "focusMinutes": routine.focus_minutes,
+                                "breakMinutes": routine.break_minutes,
+                                "startTime": routine.start_time
+                            }),
+                        );
+                    }
+                }
+            }
+
+            thread::sleep(Duration::from_secs(30));
         }
     });
 }
@@ -764,6 +826,7 @@ pub fn run() {
         .setup(|app| {
             setup_tray(app)?;
             spawn_resource_monitor(app.handle().clone(), resource_state);
+            spawn_routine_scheduler(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
