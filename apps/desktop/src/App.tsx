@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open, save } from "@tauri-apps/plugin-dialog";
@@ -8,7 +8,7 @@ import {
   requestPermission,
   sendNotification,
 } from "@tauri-apps/plugin-notification";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrentWindow, LogicalPosition } from "@tauri-apps/api/window";
 
 type PetSummary = {
   id: string;
@@ -38,6 +38,10 @@ type AppSettings = {
   autostartEnabled: boolean;
   resourceMonitorEnabled: boolean;
   batteryMonitorEnabled: boolean;
+  petSize: number;
+  showPetStatus: boolean;
+  showPetResource: boolean;
+  showPetTimer: boolean;
   quickActions: QuickAction[];
 };
 
@@ -118,6 +122,10 @@ const fallbackData: AppData = {
     autostartEnabled: false,
     resourceMonitorEnabled: true,
     batteryMonitorEnabled: true,
+    petSize: 188,
+    showPetStatus: true,
+    showPetResource: true,
+    showPetTimer: true,
     quickActions: [],
   },
   routines: [
@@ -268,6 +276,27 @@ function resourcePetState(resource: ResourceSnapshot | null): "idle" | "focus" |
   return "idle";
 }
 
+function animationSpeed(resource: ResourceSnapshot | null) {
+  const level = resourceLevel(resource);
+  if (level === "높음") return 360;
+  if (level === "보통") return 560;
+  return 920;
+}
+
+function petStatusText(
+  mood: "idle" | "focus" | "break" | "success" | "wait",
+  session: SessionTick | null,
+  resource: ResourceSnapshot | null,
+) {
+  if (session) return `${session.subject} ${session.phase === "focus" ? "집중 중" : "휴식 중"} · ${formatTime(session.remainingSeconds)}`;
+  if (mood === "success") return "좋아요. 방금 일을 처리했어요.";
+  if (mood === "wait") return "확인할 알림이 있어요.";
+  const level = resourceLevel(resource);
+  if (level === "높음") return "사용량이 높아요. 잠깐 정리해볼까요?";
+  if (level === "보통") return "조금 바빠졌어요.";
+  return "대기 중이에요.";
+}
+
 function PetSprite({
   pet,
   state,
@@ -299,6 +328,7 @@ function PetSprite({
   return (
     <div
       className="pet-sprite"
+      data-tauri-drag-region
       style={{
         width: size,
         height: Math.round(size * 1.083),
@@ -355,6 +385,8 @@ function PetWindow({
   pet,
   petState,
   resource,
+  settings,
+  session,
   menuOpen,
   quickActions,
   sessionActive,
@@ -368,6 +400,8 @@ function PetWindow({
   pet?: PetSummary;
   petState: "idle" | "focus" | "break" | "success" | "wait";
   resource: ResourceSnapshot | null;
+  settings: AppSettings;
+  session: SessionTick | null;
   menuOpen: boolean;
   quickActions: QuickAction[];
   sessionActive: boolean;
@@ -379,13 +413,94 @@ function PetWindow({
   onOpenQuickAction: (action: QuickAction) => void;
 }) {
   const level = resourceLevel(resource);
-  const speedMs = level === "높음" ? 150 : level === "보통" ? 220 : 320;
+  const speedMs = animationSpeed(resource);
+  const dragStart = useRef<{
+    x: number;
+    y: number;
+    windowX: number | null;
+    windowY: number | null;
+    pointerId: number;
+    moved: boolean;
+  } | null>(null);
+  const statusText = petStatusText(petState, session, resource);
+  const resourceText = `CPU ${Math.round(resource?.cpuPercent ?? 0)}% · MEM ${Math.round(resource?.memoryPercent ?? 0)}%${
+    resource?.batteryPercent != null ? ` · BAT ${Math.round(resource.batteryPercent)}%` : ""
+  }`;
+
+  function isInteractiveTarget(target: EventTarget | null) {
+    return target instanceof HTMLElement && Boolean(target.closest("button, input, textarea, select, a, .quick-menu"));
+  }
+
+  function handlePointerDown(event: PointerEvent<HTMLElement>) {
+    if (isInteractiveTarget(event.target)) return;
+    dragStart.current = {
+      x: event.screenX,
+      y: event.screenY,
+      windowX: null,
+      windowY: null,
+      pointerId: event.pointerId,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    if (isTauriRuntime()) {
+      const window = getCurrentWindow();
+      Promise.all([window.outerPosition(), window.scaleFactor()])
+        .then(([position, scaleFactor]) => {
+          const current = dragStart.current;
+          if (!current || current.pointerId !== event.pointerId) return;
+          current.windowX = position.x / scaleFactor;
+          current.windowY = position.y / scaleFactor;
+        })
+        .catch(() => undefined);
+    }
+  }
+
+  function handlePointerMove(event: PointerEvent<HTMLElement>) {
+    const start = dragStart.current;
+    if (!start || isInteractiveTarget(event.target)) return;
+    const dx = event.screenX - start.x;
+    const dy = event.screenY - start.y;
+    if (Math.hypot(dx, dy) >= 8) start.moved = true;
+    if (!isTauriRuntime() || start.windowX == null || start.windowY == null) return;
+    getCurrentWindow().setPosition(new LogicalPosition(start.windowX + dx, start.windowY + dy)).catch(() => undefined);
+  }
+
+  function handlePointerUp(event: PointerEvent<HTMLElement>) {
+    if (isInteractiveTarget(event.target)) return;
+    const start = dragStart.current;
+    dragStart.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    const moved = start?.moved || (start ? Math.hypot(event.screenX - start.x, event.screenY - start.y) >= 8 : false);
+    if (!moved) onToggleMenu();
+  }
+
   return (
-    <main className="pet-window" onPointerDown={onToggleMenu}>
-      <PetSprite pet={pet} state={petState} active={true} size={188} speedMs={speedMs} />
-      <div className={`resource-pill level-${level}`}>
-        CPU {Math.round(resource?.cpuPercent ?? 0)}% · MEM {Math.round(resource?.memoryPercent ?? 0)}%
-        {resource?.batteryPercent != null ? ` · BAT ${Math.round(resource.batteryPercent)}%` : ""}
+    <main
+      className="pet-window"
+      data-tauri-drag-region
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
+      {settings.showPetStatus && (
+        <div className="pet-bubble" data-tauri-drag-region>
+          {statusText}
+        </div>
+      )}
+      <PetSprite pet={pet} state={petState} active={true} size={settings.petSize} speedMs={speedMs} />
+      <div className="pet-info-stack" data-tauri-drag-region>
+        {settings.showPetResource && (
+          <div className={`resource-pill level-${level}`} data-tauri-drag-region>
+            {resourceText}
+          </div>
+        )}
+        {settings.showPetTimer && session && (
+          <div className="timer-pill" data-tauri-drag-region>
+            {formatTime(session.remainingSeconds)}
+          </div>
+        )}
       </div>
       {menuOpen && (
         <QuickMenu
@@ -494,6 +609,9 @@ function App() {
         setPetMood("idle");
       }),
       listen<ResourceSnapshot>("resource-snapshot", (event) => setResource(event.payload)),
+      listen<AppData>("app-data-updated", (event) => {
+        if (windowLabel !== "main") setData(event.payload);
+      }),
       listen<RoutineDue>("routine-due", async (event) => {
         const routine = event.payload;
         setPetMood("wait");
@@ -526,6 +644,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    call<void>("set_pet_window_size", { petSize: data.settings.petSize }).catch(() => undefined);
+  }, [data.settings.petSize]);
+
+  useEffect(() => {
     call<void>("set_resource_monitor_settings", {
       enabled: data.settings.resourceMonitorEnabled,
       batteryEnabled: data.settings.batteryMonitorEnabled,
@@ -538,6 +660,8 @@ function App() {
         pet={selectedPet}
         petState={currentPetMood}
         resource={resource}
+        settings={data.settings}
+        session={session}
         menuOpen={quickMenuOpen}
         quickActions={data.settings.quickActions}
         sessionActive={Boolean(session)}
@@ -814,7 +938,7 @@ function App() {
             state={currentPetMood}
             active={data.settings.animationMode === "low-fps" || currentPetMood !== "idle"}
             size={154}
-            speedMs={level === "높음" ? 150 : level === "보통" ? 220 : 320}
+            speedMs={animationSpeed(resource)}
           />
           <div>
             <strong>{selectedPet?.displayName}</strong>
@@ -878,6 +1002,45 @@ function App() {
             />
             배터리 반응
           </label>
+          <label className="range-setting">
+            캐릭터 크기
+            <input
+              type="range"
+              min={120}
+              max={320}
+              step={10}
+              value={data.settings.petSize}
+              onChange={(event) => patchSettings({ petSize: Number(event.target.value) })}
+            />
+            <span>{data.settings.petSize}px</span>
+          </label>
+          <div className="quick-action-editor">
+            <strong>캐릭터 아래 표시</strong>
+            <label>
+              <input
+                type="checkbox"
+                checked={data.settings.showPetStatus}
+                onChange={(event) => patchSettings({ showPetStatus: event.target.checked })}
+              />
+              알림/상황 말풍선
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={data.settings.showPetResource}
+                onChange={(event) => patchSettings({ showPetResource: event.target.checked })}
+              />
+              CPU/메모리/배터리
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={data.settings.showPetTimer}
+                onChange={(event) => patchSettings({ showPetTimer: event.target.checked })}
+              />
+              집중 타이머
+            </label>
+          </div>
           <div className="quick-action-editor">
             <strong>바로가기</strong>
             <input value={quickActionName} onChange={(event) => setQuickActionName(event.target.value)} placeholder="이름" />

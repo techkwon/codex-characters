@@ -11,6 +11,8 @@ const paths = {
   packageJson: resolve(appDir, "package.json"),
   tauriConfig: resolve(appDir, "src-tauri/tauri.conf.json"),
   cargoToml: resolve(appDir, "src-tauri/Cargo.toml"),
+  appTsx: resolve(appDir, "src/App.tsx"),
+  appRust: resolve(appDir, "src-tauri/src/lib.rs"),
   desktopBuildWorkflow: resolve(repoDir, ".github/workflows/desktop-build.yml"),
   desktopReleaseWorkflow: resolve(repoDir, ".github/workflows/desktop-release.yml"),
   releaseChecklist: resolve(appDir, "RELEASE_CHECKLIST.md"),
@@ -160,11 +162,31 @@ function checkReleaseChecklist() {
   assert(text.includes("GitHub Release"), "Release checklist covers GitHub Release distribution");
 }
 
+function checkStandalonePetExperience() {
+  const appTsx = readText(paths.appTsx);
+  const appRust = readText(paths.appRust);
+
+  assert(appTsx.includes("setPosition(new LogicalPosition"), "standalone pet can be moved from the character surface");
+  assert(appTsx.includes("data-tauri-drag-region"), "standalone pet marks the character surface as a native drag region");
+  assert(appTsx.includes("petSize"), "settings expose pet size control");
+  assert(appTsx.includes("showPetStatus"), "settings expose pet status bubble visibility");
+  assert(appTsx.includes("showPetResource"), "settings expose pet resource info visibility");
+  assert(appTsx.includes("showPetTimer"), "settings expose pet timer info visibility");
+  assert(appTsx.includes("petStatusText"), "pet shows Codex-style situational status text");
+  assert(appTsx.includes("animationSpeed(resource)"), "pet animation speed is linked to resource pressure");
+  assert(appRust.includes("set_pet_window_size"), "backend exposes pet window size command");
+  assert(appRust.includes("pet_size: u32"), "settings persist pet size");
+  assert(appRust.includes("show_pet_status: bool"), "settings persist pet status display preference");
+  assert(appRust.includes("show_pet_resource: bool"), "settings persist pet resource display preference");
+  assert(appRust.includes("show_pet_timer: bool"), "settings persist pet timer display preference");
+}
+
 checkPackageScripts();
 checkTauriSecurity();
 checkBuiltinPets();
 checkWorkflows();
 checkReleaseChecklist();
+checkStandalonePetExperience();
 
 for (const message of passes) {
   console.log(`PASS ${message}`);

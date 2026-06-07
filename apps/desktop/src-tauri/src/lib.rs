@@ -18,7 +18,7 @@ use sysinfo::System;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Emitter, Manager, State, WindowEvent,
+    AppHandle, Emitter, LogicalSize, Manager, Size, State, WindowEvent,
 };
 use url::Url;
 use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
@@ -82,6 +82,14 @@ struct AppSettings {
     resource_monitor_enabled: bool,
     #[serde(default = "default_true")]
     battery_monitor_enabled: bool,
+    #[serde(default = "default_pet_size")]
+    pet_size: u32,
+    #[serde(default = "default_true")]
+    show_pet_status: bool,
+    #[serde(default = "default_true")]
+    show_pet_resource: bool,
+    #[serde(default = "default_true")]
+    show_pet_timer: bool,
     #[serde(default)]
     quick_actions: Vec<QuickAction>,
 }
@@ -226,6 +234,10 @@ fn default_routine_start_time() -> String {
     "09:00".to_string()
 }
 
+fn default_pet_size() -> u32 {
+    188
+}
+
 fn default_settings() -> AppSettings {
     AppSettings {
         selected_pet_id: default_selected_pet_id(),
@@ -234,6 +246,10 @@ fn default_settings() -> AppSettings {
         autostart_enabled: false,
         resource_monitor_enabled: true,
         battery_monitor_enabled: true,
+        pet_size: default_pet_size(),
+        show_pet_status: true,
+        show_pet_resource: true,
+        show_pet_timer: true,
         quick_actions: Vec::new(),
     }
 }
@@ -835,6 +851,7 @@ fn find_file(root: &Path, name: &str) -> Option<PathBuf> {
 fn load_app_data(app: AppHandle) -> Result<AppData, String> {
     let mut data = load_state_inner(&app).map_err(|error| error.to_string())?;
     data.settings.pet_window_enabled = true;
+    data.settings.pet_size = data.settings.pet_size.clamp(120, 320);
     Ok(data)
 }
 
@@ -842,7 +859,10 @@ fn load_app_data(app: AppHandle) -> Result<AppData, String> {
 fn save_app_data(app: AppHandle, data: AppData) -> Result<(), String> {
     let mut data = data;
     data.settings.pet_window_enabled = true;
-    save_state_inner(&app, &data).map_err(|error| error.to_string())
+    data.settings.pet_size = data.settings.pet_size.clamp(120, 320);
+    save_state_inner(&app, &data).map_err(|error| error.to_string())?;
+    let _ = app.emit("app-data-updated", &data);
+    Ok(())
 }
 
 #[tauri::command]
@@ -915,6 +935,10 @@ fn export_diagnostics(app: AppHandle, path: String) -> Result<(), String> {
             "autostartEnabled": data.settings.autostart_enabled,
             "resourceMonitorEnabled": data.settings.resource_monitor_enabled,
             "batteryMonitorEnabled": data.settings.battery_monitor_enabled,
+            "petSize": data.settings.pet_size,
+            "showPetStatus": data.settings.show_pet_status,
+            "showPetResource": data.settings.show_pet_resource,
+            "showPetTimer": data.settings.show_pet_timer,
             "quickActionCount": data.settings.quick_actions.len(),
             "enabledQuickActionCount": data.settings.quick_actions.iter().filter(|action| action.enabled).count()
         }
@@ -1155,6 +1179,19 @@ fn show_main_section(app: AppHandle, section: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn set_pet_window_size(app: AppHandle, pet_size: u32) -> Result<(), String> {
+    let pet_size = pet_size.clamp(120, 320);
+    if let Some(window) = app.get_webview_window("pet") {
+        let width = (pet_size + 70) as f64;
+        let height = ((pet_size as f64 * 1.16) + 90.0).round();
+        window
+            .set_size(Size::Logical(LogicalSize::new(width, height)))
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
 fn set_resource_monitor_settings(
     state: State<'_, ResourceMonitorState>,
     enabled: bool,
@@ -1309,6 +1346,7 @@ pub fn run() {
             install_pet_from_url,
             show_pet_window,
             show_main_section,
+            set_pet_window_size,
             set_resource_monitor_settings,
             app_data_location,
             export_app_backup,
