@@ -18,7 +18,7 @@ use sysinfo::System;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Emitter, LogicalSize, Manager, Size, State, WindowEvent,
+    AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, Position, Size, State, WindowEvent,
 };
 use url::Url;
 use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
@@ -90,6 +90,8 @@ struct AppSettings {
     show_pet_resource: bool,
     #[serde(default = "default_true")]
     show_pet_timer: bool,
+    #[serde(default)]
+    pet_layout_version: u32,
     #[serde(default)]
     quick_actions: Vec<QuickAction>,
 }
@@ -235,7 +237,7 @@ fn default_routine_start_time() -> String {
 }
 
 fn default_pet_size() -> u32 {
-    188
+    150
 }
 
 fn default_settings() -> AppSettings {
@@ -250,6 +252,7 @@ fn default_settings() -> AppSettings {
         show_pet_status: true,
         show_pet_resource: true,
         show_pet_timer: true,
+        pet_layout_version: 1,
         quick_actions: Vec::new(),
     }
 }
@@ -850,8 +853,16 @@ fn find_file(root: &Path, name: &str) -> Option<PathBuf> {
 #[tauri::command]
 fn load_app_data(app: AppHandle) -> Result<AppData, String> {
     let mut data = load_state_inner(&app).map_err(|error| error.to_string())?;
+    let should_migrate_pet_layout = data.settings.pet_layout_version < 1;
     data.settings.pet_window_enabled = true;
+    if should_migrate_pet_layout {
+        data.settings.pet_size = default_pet_size();
+        data.settings.pet_layout_version = 1;
+    }
     data.settings.pet_size = data.settings.pet_size.clamp(120, 320);
+    if should_migrate_pet_layout {
+        save_state_inner(&app, &data).map_err(|error| error.to_string())?;
+    }
     Ok(data)
 }
 
@@ -860,6 +871,7 @@ fn save_app_data(app: AppHandle, data: AppData) -> Result<(), String> {
     let mut data = data;
     data.settings.pet_window_enabled = true;
     data.settings.pet_size = data.settings.pet_size.clamp(120, 320);
+    data.settings.pet_layout_version = data.settings.pet_layout_version.max(1);
     save_state_inner(&app, &data).map_err(|error| error.to_string())?;
     let _ = app.emit("app-data-updated", &data);
     Ok(())
@@ -1192,6 +1204,42 @@ fn set_pet_window_size(app: AppHandle, pet_size: u32) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn move_pet_window(app: AppHandle, dx: i32, dy: i32) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("pet") {
+        let position = window.outer_position().map_err(|error| error.to_string())?;
+        window
+            .set_position(Position::Physical((position.x + dx, position.y + dy).into()))
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn place_pet_window_bottom_right(app: AppHandle, pet_size: u32) -> Result<(), String> {
+    let pet_size = pet_size.clamp(120, 320);
+    if let Some(window) = app.get_webview_window("pet") {
+        let width = pet_size + 70;
+        let height = ((pet_size as f64 * 1.16) + 90.0).round() as u32;
+        window
+            .set_size(Size::Logical(LogicalSize::new(width as f64, height as f64)))
+            .map_err(|error| error.to_string())?;
+        if let Some(monitor) = window.current_monitor().map_err(|error| error.to_string())? {
+            let monitor_position = monitor.position();
+            let monitor_size = monitor.size();
+            let scale_factor = monitor.scale_factor();
+            let logical_width = monitor_size.width as f64 / scale_factor;
+            let logical_height = monitor_size.height as f64 / scale_factor;
+            let logical_x = monitor_position.x as f64 / scale_factor + logical_width - width as f64 - 24.0;
+            let logical_y = monitor_position.y as f64 / scale_factor + logical_height - height as f64 - 116.0;
+            window
+                .set_position(Position::Logical(LogicalPosition::new(logical_x.max(0.0), logical_y.max(0.0))))
+                .map_err(|error| error.to_string())?;
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
 fn set_resource_monitor_settings(
     state: State<'_, ResourceMonitorState>,
     enabled: bool,
@@ -1347,6 +1395,8 @@ pub fn run() {
             show_pet_window,
             show_main_section,
             set_pet_window_size,
+            move_pet_window,
+            place_pet_window_bottom_right,
             set_resource_monitor_settings,
             app_data_location,
             export_app_backup,

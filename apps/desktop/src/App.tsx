@@ -42,6 +42,7 @@ type AppSettings = {
   showPetStatus: boolean;
   showPetResource: boolean;
   showPetTimer: boolean;
+  petLayoutVersion: number;
   quickActions: QuickAction[];
 };
 
@@ -122,10 +123,11 @@ const fallbackData: AppData = {
     autostartEnabled: false,
     resourceMonitorEnabled: true,
     batteryMonitorEnabled: true,
-    petSize: 188,
+    petSize: 150,
     showPetStatus: true,
     showPetResource: true,
     showPetTimer: true,
+    petLayoutVersion: 1,
     quickActions: [],
   },
   routines: [
@@ -349,6 +351,7 @@ function QuickMenu({
   onStopFocus,
   onQuickReminder,
   onResizePet,
+  onMovePet,
   onStartMove,
   onShowRoutines,
   onShowPets,
@@ -363,6 +366,7 @@ function QuickMenu({
   onStopFocus: () => void;
   onQuickReminder: () => void;
   onResizePet: (delta: number) => void;
+  onMovePet: (dx: number, dy: number) => void;
   onStartMove: () => void;
   onShowRoutines: () => void;
   onShowPets: () => void;
@@ -380,6 +384,14 @@ function QuickMenu({
         <button onClick={() => onResizePet(20)} disabled={petSize >= 320}>
           크게
         </button>
+      </div>
+      <div className="quick-menu-move">
+        <span />
+        <button onClick={() => onMovePet(0, -48)}>위</button>
+        <span />
+        <button onClick={() => onMovePet(-48, 0)}>왼쪽</button>
+        <button onClick={() => onMovePet(0, 48)}>아래</button>
+        <button onClick={() => onMovePet(48, 0)}>오른쪽</button>
       </div>
       <button onClick={sessionActive ? onStopFocus : onStartFocus}>{sessionActive ? "집중 정지" : "집중 시작"}</button>
       <button onClick={onQuickReminder}>빠른 알림</button>
@@ -410,6 +422,7 @@ function PetWindow({
   onStopFocus,
   onQuickReminder,
   onResizePet,
+  onMovePet,
   onShowMain,
   onOpenQuickAction,
 }: {
@@ -426,6 +439,7 @@ function PetWindow({
   onStopFocus: () => void;
   onQuickReminder: () => void;
   onResizePet: (delta: number) => void;
+  onMovePet: (dx: number, dy: number) => void;
   onShowMain: (section?: "routines" | "pets" | "import" | "settings") => void;
   onOpenQuickAction: (action: QuickAction) => void;
 }) {
@@ -515,6 +529,18 @@ function PetWindow({
       >
         이동
       </button>
+      <div className="pet-direct-controls" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>
+        <button onClick={() => onResizePet(-20)} disabled={settings.petSize <= 120}>
+          -
+        </button>
+        <button onClick={() => onResizePet(20)} disabled={settings.petSize >= 320}>
+          +
+        </button>
+        <button onClick={() => onMovePet(-48, 0)}>←</button>
+        <button onClick={() => onMovePet(0, -48)}>↑</button>
+        <button onClick={() => onMovePet(0, 48)}>↓</button>
+        <button onClick={() => onMovePet(48, 0)}>→</button>
+      </div>
       {settings.showPetStatus && (
         <div className="pet-bubble" data-tauri-drag-region>
           {statusText}
@@ -542,6 +568,7 @@ function PetWindow({
           onStopFocus={onStopFocus}
           onQuickReminder={onQuickReminder}
           onResizePet={onResizePet}
+          onMovePet={onMovePet}
           onStartMove={startNativeMove}
           onShowRoutines={() => onShowMain("routines")}
           onShowPets={() => onShowMain("pets")}
@@ -678,6 +705,11 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (windowLabel !== "pet") return;
+    call<void>("place_pet_window_bottom_right", { petSize: data.settings.petSize }).catch(() => undefined);
+  }, [windowLabel]);
+
+  useEffect(() => {
     call<void>("set_pet_window_size", { petSize: data.settings.petSize }).catch(() => undefined);
   }, [data.settings.petSize]);
 
@@ -704,6 +736,7 @@ function App() {
         onStopFocus={stopFocus}
         onQuickReminder={quickReminder}
         onResizePet={resizePet}
+        onMovePet={movePet}
         onShowMain={showMainSection}
         onOpenQuickAction={openQuickAction}
       />
@@ -734,6 +767,10 @@ function App() {
     if (isTauriRuntime() && windowLabel === "pet") {
       call<void>("save_app_data", { data: nextData }).catch((error) => setStatus(String(error)));
     }
+  }
+
+  function movePet(dx: number, dy: number) {
+    call<void>("move_pet_window", { dx, dy }).catch((error) => setStatus(String(error)));
   }
 
   function scrollToSection(section: "routines" | "pets" | "import" | "settings") {
@@ -1006,6 +1043,7 @@ function App() {
               onStopFocus={stopFocus}
               onQuickReminder={quickReminder}
               onResizePet={resizePet}
+              onMovePet={movePet}
               onStartMove={() => undefined}
               onShowRoutines={() => scrollToSection("routines")}
               onShowPets={() => scrollToSection("pets")}

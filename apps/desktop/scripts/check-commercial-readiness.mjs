@@ -168,13 +168,23 @@ function checkStandalonePetExperience() {
 
   assert(appTsx.includes("setPosition(new LogicalPosition"), "standalone pet can be moved from the character surface");
   assert(appTsx.includes("data-tauri-drag-region"), "standalone pet marks the character surface as a native drag region");
+  assert(appTsx.includes("move_pet_window"), "standalone pet exposes button-based move controls");
+  assert(appTsx.includes("pet-direct-controls"), "standalone pet exposes always-visible direct controls");
+  assert(appTsx.includes("place_pet_window_bottom_right"), "standalone pet defaults to the lower-right screen position");
   assert(appTsx.includes("petSize"), "settings expose pet size control");
+  assert(appTsx.includes("petSize: 150"), "standalone pet default size is compact");
+  assert(appTsx.includes("petLayoutVersion"), "settings track pet layout migration version");
   assert(appTsx.includes("showPetStatus"), "settings expose pet status bubble visibility");
   assert(appTsx.includes("showPetResource"), "settings expose pet resource info visibility");
   assert(appTsx.includes("showPetTimer"), "settings expose pet timer info visibility");
   assert(appTsx.includes("petStatusText"), "pet shows Codex-style situational status text");
   assert(appTsx.includes("animationSpeed(resource)"), "pet animation speed is linked to resource pressure");
   assert(appRust.includes("set_pet_window_size"), "backend exposes pet window size command");
+  assert(appRust.includes("fn default_pet_size() -> u32 {\n    150\n}"), "backend default pet size is compact");
+  assert(appRust.includes("pet_layout_version"), "backend migrates old pet layout defaults once");
+  assert(appRust.includes("116.0"), "backend lower-right placement leaves room above the Dock/taskbar");
+  assert(appRust.includes("move_pet_window"), "backend exposes pet move command");
+  assert(appRust.includes("place_pet_window_bottom_right"), "backend exposes lower-right placement command");
   assert(appRust.includes("pet_size: u32"), "settings persist pet size");
   assert(appRust.includes("show_pet_status: bool"), "settings persist pet status display preference");
   assert(appRust.includes("show_pet_resource: bool"), "settings persist pet resource display preference");
