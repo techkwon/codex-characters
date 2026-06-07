@@ -166,10 +166,10 @@ function checkStandalonePetExperience() {
   const appTsx = readText(paths.appTsx);
   const appRust = readText(paths.appRust);
 
-  assert(appTsx.includes("setPosition(new LogicalPosition"), "standalone pet can be moved from the character surface");
   assert(appTsx.includes("data-tauri-drag-region"), "standalone pet marks the character surface as a native drag region");
-  assert(appTsx.includes("move_pet_window"), "standalone pet exposes button-based move controls");
-  assert(appTsx.includes("pet-direct-controls"), "standalone pet exposes always-visible direct controls");
+  assert(appTsx.includes("startDragging"), "standalone pet can be dragged from the character surface");
+  assert(appTsx.includes("move_pet_window"), "standalone pet keeps menu-based move fallback controls");
+  assert(!appTsx.includes("pet-direct-controls"), "standalone pet does not show always-visible movement controls");
   assert(appTsx.includes("place_pet_window_bottom_right"), "standalone pet defaults to the lower-right screen position");
   assert(appTsx.includes("petSize"), "settings expose pet size control");
   assert(appTsx.includes("petSize: 150"), "standalone pet default size is compact");

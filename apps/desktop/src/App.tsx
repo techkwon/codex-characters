@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open, save } from "@tauri-apps/plugin-dialog";
@@ -8,7 +8,7 @@ import {
   requestPermission,
   sendNotification,
 } from "@tauri-apps/plugin-notification";
-import { getCurrentWindow, LogicalPosition } from "@tauri-apps/api/window";
+import { getCurrentWindow, PhysicalPosition } from "@tauri-apps/api/window";
 
 type PetSummary = {
   id: string;
@@ -330,7 +330,6 @@ function PetSprite({
   return (
     <div
       className="pet-sprite"
-      data-tauri-drag-region
       style={{
         width: size,
         height: Math.round(size * 1.083),
@@ -450,9 +449,12 @@ function PetWindow({
     y: number;
     windowX: number | null;
     windowY: number | null;
+    scaleFactor: number;
     pointerId: number;
     moved: boolean;
+    startedAt: number;
   } | null>(null);
+  const suppressNextClick = useRef(false);
   const statusText = petStatusText(petState, session, resource);
   const resourceText = `CPU ${Math.round(resource?.cpuPercent ?? 0)}% · MEM ${Math.round(resource?.memoryPercent ?? 0)}%${
     resource?.batteryPercent != null ? ` · BAT ${Math.round(resource.batteryPercent)}%` : ""
@@ -469,26 +471,30 @@ function PetWindow({
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
     if (isInteractiveTarget(event.target)) return;
+    event.preventDefault();
     dragStart.current = {
       x: event.screenX,
       y: event.screenY,
       windowX: null,
       windowY: null,
+      scaleFactor: 1,
       pointerId: event.pointerId,
       moved: false,
+      startedAt: performance.now(),
     };
     event.currentTarget.setPointerCapture(event.pointerId);
-    if (isTauriRuntime()) {
-      const window = getCurrentWindow();
-      Promise.all([window.outerPosition(), window.scaleFactor()])
-        .then(([position, scaleFactor]) => {
-          const current = dragStart.current;
-          if (!current || current.pointerId !== event.pointerId) return;
-          current.windowX = position.x / scaleFactor;
-          current.windowY = position.y / scaleFactor;
-        })
-        .catch(() => undefined);
-    }
+    startNativeMove();
+    if (!isTauriRuntime()) return;
+    const appWindow = getCurrentWindow();
+    Promise.all([appWindow.outerPosition(), appWindow.scaleFactor()])
+      .then(([position, scaleFactor]) => {
+        const current = dragStart.current;
+        if (!current || current.pointerId !== event.pointerId) return;
+        current.windowX = position.x;
+        current.windowY = position.y;
+        current.scaleFactor = scaleFactor;
+      })
+      .catch(() => undefined);
   }
 
   function handlePointerMove(event: PointerEvent<HTMLElement>) {
@@ -496,9 +502,11 @@ function PetWindow({
     if (!start || isInteractiveTarget(event.target)) return;
     const dx = event.screenX - start.x;
     const dy = event.screenY - start.y;
-    if (Math.hypot(dx, dy) >= 8) start.moved = true;
+    if (Math.hypot(dx, dy) >= 4) start.moved = true;
     if (!isTauriRuntime() || start.windowX == null || start.windowY == null) return;
-    getCurrentWindow().setPosition(new LogicalPosition(start.windowX + dx, start.windowY + dy)).catch(() => undefined);
+    const nextX = Math.round(start.windowX + dx * start.scaleFactor);
+    const nextY = Math.round(start.windowY + dy * start.scaleFactor);
+    getCurrentWindow().setPosition(new PhysicalPosition(nextX, nextY)).catch(() => undefined);
   }
 
   function handlePointerUp(event: PointerEvent<HTMLElement>) {
@@ -508,20 +516,37 @@ function PetWindow({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    const moved = start?.moved || (start ? Math.hypot(event.screenX - start.x, event.screenY - start.y) >= 8 : false);
-    if (!moved) onToggleMenu();
+    const elapsedMs = start ? performance.now() - start.startedAt : 0;
+    const moved =
+      start?.moved || (start ? Math.hypot(event.screenX - start.x, event.screenY - start.y) >= 8 : false) || elapsedMs >= 180;
+    suppressNextClick.current = moved;
+    if (moved) {
+      window.setTimeout(() => {
+        suppressNextClick.current = false;
+      }, 250);
+    }
+  }
+
+  function handleClick(event: MouseEvent<HTMLElement>) {
+    if (isInteractiveTarget(event.target)) return;
+    if (suppressNextClick.current) {
+      suppressNextClick.current = false;
+      return;
+    }
+    onToggleMenu();
   }
 
   return (
     <main
       className="pet-window"
-      data-tauri-drag-region
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onClick={handleClick}
     >
       <button
         className="pet-move-handle"
+        data-tauri-drag-region
         onPointerDown={(event) => {
           event.stopPropagation();
           startNativeMove();
@@ -529,32 +554,20 @@ function PetWindow({
       >
         이동
       </button>
-      <div className="pet-direct-controls" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>
-        <button onClick={() => onResizePet(-20)} disabled={settings.petSize <= 120}>
-          -
-        </button>
-        <button onClick={() => onResizePet(20)} disabled={settings.petSize >= 320}>
-          +
-        </button>
-        <button onClick={() => onMovePet(-48, 0)}>←</button>
-        <button onClick={() => onMovePet(0, -48)}>↑</button>
-        <button onClick={() => onMovePet(0, 48)}>↓</button>
-        <button onClick={() => onMovePet(48, 0)}>→</button>
-      </div>
       {settings.showPetStatus && (
-        <div className="pet-bubble" data-tauri-drag-region>
+        <div className="pet-bubble">
           {statusText}
         </div>
       )}
       <PetSprite pet={pet} state={petState} active={true} size={settings.petSize} speedMs={speedMs} />
-      <div className="pet-info-stack" data-tauri-drag-region>
+      <div className="pet-info-stack">
         {settings.showPetResource && (
-          <div className={`resource-pill level-${level}`} data-tauri-drag-region>
+          <div className={`resource-pill level-${level}`}>
             {resourceText}
           </div>
         )}
         {settings.showPetTimer && session && (
-          <div className="timer-pill" data-tauri-drag-region>
+          <div className="timer-pill">
             {formatTime(session.remainingSeconds)}
           </div>
         )}
