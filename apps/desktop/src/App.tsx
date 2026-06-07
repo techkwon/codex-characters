@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
+import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import {
   isPermissionGranted,
   requestPermission,
@@ -34,12 +35,22 @@ type AppSettings = {
   petWindowEnabled: boolean;
   animationMode: "event" | "low-fps";
   autostartEnabled: boolean;
+  resourceMonitorEnabled: boolean;
+  batteryMonitorEnabled: boolean;
+  quickActions: QuickAction[];
 };
 
 type AppData = {
   settings: AppSettings;
   routines: Routine[];
   installedPets: PetSummary[];
+};
+
+type QuickAction = {
+  id: string;
+  name: string;
+  target: string;
+  enabled: boolean;
 };
 
 type PetValidation = {
@@ -69,6 +80,13 @@ type SessionTick = {
   totalSeconds: number;
 };
 
+type ResourceSnapshot = {
+  cpuPercent: number;
+  memoryPercent: number;
+  batteryPercent?: number | null;
+  batteryState?: string | null;
+};
+
 const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
 const fallbackData: AppData = {
@@ -77,6 +95,9 @@ const fallbackData: AppData = {
     petWindowEnabled: false,
     animationMode: "event",
     autostartEnabled: false,
+    resourceMonitorEnabled: true,
+    batteryMonitorEnabled: true,
+    quickActions: [],
   },
   routines: [
     {
@@ -86,7 +107,7 @@ const fallbackData: AppData = {
       breakMinutes: 5,
       repeatDays: [1, 2, 3, 4, 5],
       enabled: true,
-      message: "하로와 함께 집중할 시간입니다.",
+      message: "오늘의 펫과 함께 집중할 시간입니다.",
     },
   ],
   installedPets: [],
@@ -192,16 +213,38 @@ function formatTime(seconds: number) {
   return `${minute}:${second}`;
 }
 
+function isUrlTarget(target: string) {
+  return /^(https?:|mailto:|tel:)/i.test(target.trim());
+}
+
+function resourceLevel(resource: ResourceSnapshot | null) {
+  if (!resource) return "대기";
+  const pressure = Math.max(resource.cpuPercent, resource.memoryPercent);
+  if (pressure >= 80) return "높음";
+  if (pressure >= 50) return "보통";
+  return "낮음";
+}
+
+function resourcePetState(resource: ResourceSnapshot | null): "idle" | "focus" | "break" | "wait" {
+  if (!resource) return "idle";
+  const pressure = Math.max(resource.cpuPercent, resource.memoryPercent);
+  if (pressure >= 80) return "wait";
+  if (pressure >= 50) return "focus";
+  return "idle";
+}
+
 function PetSprite({
   pet,
   state,
   active,
   size = 168,
+  speedMs = 240,
 }: {
   pet?: PetSummary;
   state: "idle" | "focus" | "break" | "success" | "wait";
   active: boolean;
   size?: number;
+  speedMs?: number;
 }) {
   const [frame, setFrame] = useState(0);
   const row = state === "focus" ? 8 : state === "break" ? 3 : state === "success" ? 4 : state === "wait" ? 6 : 0;
@@ -214,9 +257,9 @@ function PetSprite({
     }
     const timer = window.setInterval(() => {
       setFrame((value) => (value + 1) % frames);
-    }, 240);
+    }, speedMs);
     return () => window.clearInterval(timer);
-  }, [active, frames]);
+  }, [active, frames, speedMs]);
 
   return (
     <div
@@ -233,10 +276,96 @@ function PetSprite({
   );
 }
 
-function PetWindow({ pet }: { pet?: PetSummary }) {
+function QuickMenu({
+  quickActions,
+  sessionActive,
+  onStartFocus,
+  onStopFocus,
+  onQuickReminder,
+  onShowRoutines,
+  onShowPets,
+  onShowImport,
+  onShowSettings,
+  onOpenQuickAction,
+}: {
+  quickActions: QuickAction[];
+  sessionActive: boolean;
+  onStartFocus: () => void;
+  onStopFocus: () => void;
+  onQuickReminder: () => void;
+  onShowRoutines: () => void;
+  onShowPets: () => void;
+  onShowImport: () => void;
+  onShowSettings: () => void;
+  onOpenQuickAction: (action: QuickAction) => void;
+}) {
   return (
-    <main className="pet-window">
-      <PetSprite pet={pet} state="idle" active={true} size={188} />
+    <div className="quick-menu" onClick={(event) => event.stopPropagation()}>
+      <button onClick={sessionActive ? onStopFocus : onStartFocus}>{sessionActive ? "집중 정지" : "집중 시작"}</button>
+      <button onClick={onQuickReminder}>빠른 알림</button>
+      <button onClick={onShowRoutines}>오늘 루틴</button>
+      <button onClick={onShowPets}>펫 변경</button>
+      <button onClick={onShowImport}>펫 추가</button>
+      <button onClick={onShowSettings}>설정</button>
+      {quickActions.filter((action) => action.enabled).map((action) => (
+        <button key={action.id} onClick={() => onOpenQuickAction(action)}>
+          {action.name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PetWindow({
+  pet,
+  petState,
+  resource,
+  menuOpen,
+  quickActions,
+  sessionActive,
+  onToggleMenu,
+  onStartFocus,
+  onStopFocus,
+  onQuickReminder,
+  onShowMain,
+  onOpenQuickAction,
+}: {
+  pet?: PetSummary;
+  petState: "idle" | "focus" | "break" | "success" | "wait";
+  resource: ResourceSnapshot | null;
+  menuOpen: boolean;
+  quickActions: QuickAction[];
+  sessionActive: boolean;
+  onToggleMenu: () => void;
+  onStartFocus: () => void;
+  onStopFocus: () => void;
+  onQuickReminder: () => void;
+  onShowMain: (section?: "routines" | "pets" | "import" | "settings") => void;
+  onOpenQuickAction: (action: QuickAction) => void;
+}) {
+  const level = resourceLevel(resource);
+  const speedMs = level === "높음" ? 150 : level === "보통" ? 220 : 320;
+  return (
+    <main className="pet-window" onClick={onToggleMenu}>
+      <PetSprite pet={pet} state={petState} active={true} size={188} speedMs={speedMs} />
+      <div className={`resource-pill level-${level}`}>
+        CPU {Math.round(resource?.cpuPercent ?? 0)}% · MEM {Math.round(resource?.memoryPercent ?? 0)}%
+        {resource?.batteryPercent != null ? ` · BAT ${Math.round(resource.batteryPercent)}%` : ""}
+      </div>
+      {menuOpen && (
+        <QuickMenu
+          quickActions={quickActions}
+          sessionActive={sessionActive}
+          onStartFocus={onStartFocus}
+          onStopFocus={onStopFocus}
+          onQuickReminder={onQuickReminder}
+          onShowRoutines={() => onShowMain("routines")}
+          onShowPets={() => onShowMain("pets")}
+          onShowImport={() => onShowMain("import")}
+          onShowSettings={() => onShowMain("settings")}
+          onOpenQuickAction={onOpenQuickAction}
+        />
+      )}
     </main>
   );
 }
@@ -249,11 +378,21 @@ function App() {
   const [selectedRoutineId, setSelectedRoutineId] = useState("default-focus");
   const [session, setSession] = useState<SessionTick | null>(null);
   const [petMood, setPetMood] = useState<"idle" | "focus" | "break" | "success" | "wait">("idle");
+  const [resource, setResource] = useState<ResourceSnapshot | null>(null);
+  const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [importPath, setImportPath] = useState("");
   const [importUrl, setImportUrl] = useState("");
+  const [quickActionName, setQuickActionName] = useState("");
+  const [quickActionTarget, setQuickActionTarget] = useState("");
   const [validation, setValidation] = useState<PetValidation | null>(null);
   const [status, setStatus] = useState("로컬 데이터만 사용합니다.");
   const saveTimer = useRef<number | null>(null);
+  const dataRef = useRef<AppData>(fallbackData);
+  const selectedRoutineIdRef = useRef("default-focus");
+  const routinesRef = useRef<HTMLDivElement | null>(null);
+  const petsRef = useRef<HTMLDivElement | null>(null);
+  const importRef = useRef<HTMLElement | null>(null);
+  const settingsRef = useRef<HTMLDivElement | null>(null);
 
   const pets = useMemo(() => {
     const map = new Map<string, PetSummary>();
@@ -265,9 +404,20 @@ function App() {
   const selectedPet = pets.find((pet) => pet.id === data.settings.selectedPetId) ?? pets[0];
   const selectedRoutine = data.routines.find((routine) => routine.id === selectedRoutineId) ?? data.routines[0];
   const sessionProgress = session ? 1 - session.remainingSeconds / Math.max(session.totalSeconds, 1) : 0;
+  const currentPetMood = petMood === "idle" ? resourcePetState(resource) : petMood;
+  const level = resourceLevel(resource);
 
   useEffect(() => {
-    setWindowLabel(getCurrentWindow().label);
+    dataRef.current = data;
+    selectedRoutineIdRef.current = selectedRoutineId;
+  }, [data, selectedRoutineId]);
+
+  useEffect(() => {
+    if (isTauriRuntime()) {
+      setWindowLabel(getCurrentWindow().label);
+    } else {
+      setWindowLabel("main");
+    }
     Promise.all([
       call<AppData>("load_app_data"),
       call<PetSummary[]>("list_builtin_pets"),
@@ -303,12 +453,16 @@ function App() {
         setSession(null);
         setPetMood("idle");
       }),
+      listen<ResourceSnapshot>("resource-snapshot", (event) => setResource(event.payload)),
+      listen<"routines" | "pets" | "import" | "settings">("show-main-section", (event) => {
+        if (windowLabel === "main") scrollToSection(event.payload);
+      }),
       listen("tray-start-focus", () => startFocus()),
     ];
     return () => {
       for (const item of unlisten) item.then((dispose) => dispose());
     };
-  });
+  }, [windowLabel]);
 
   useEffect(() => {
     if (!isTauriRuntime() || windowLabel !== "main") return;
@@ -325,8 +479,30 @@ function App() {
     call<void>("show_pet_window", { show: data.settings.petWindowEnabled }).catch(() => undefined);
   }, [data.settings.petWindowEnabled]);
 
+  useEffect(() => {
+    call<void>("set_resource_monitor_settings", {
+      enabled: data.settings.resourceMonitorEnabled,
+      batteryEnabled: data.settings.batteryMonitorEnabled,
+    }).catch(() => undefined);
+  }, [data.settings.resourceMonitorEnabled, data.settings.batteryMonitorEnabled]);
+
   if (windowLabel === "pet") {
-    return <PetWindow pet={selectedPet} />;
+    return (
+      <PetWindow
+        pet={selectedPet}
+        petState={currentPetMood}
+        resource={resource}
+        menuOpen={quickMenuOpen}
+        quickActions={data.settings.quickActions}
+        sessionActive={Boolean(session)}
+        onToggleMenu={() => setQuickMenuOpen((value) => !value)}
+        onStartFocus={startFocus}
+        onStopFocus={stopFocus}
+        onQuickReminder={quickReminder}
+        onShowMain={showMainSection}
+        onOpenQuickAction={openQuickAction}
+      />
+    );
   }
 
   async function notify(title: string, body: string) {
@@ -340,6 +516,22 @@ function App() {
 
   function patchSettings(patch: Partial<AppSettings>) {
     setData((value) => ({ ...value, settings: { ...value.settings, ...patch } }));
+  }
+
+  function scrollToSection(section: "routines" | "pets" | "import" | "settings") {
+    const target =
+      section === "routines" ? routinesRef.current : section === "pets" ? petsRef.current : section === "import" ? importRef.current : settingsRef.current;
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setQuickMenuOpen(false);
+  }
+
+  function showMainSection(section: "routines" | "pets" | "import" | "settings" = "routines") {
+    if (isTauriRuntime() && windowLabel === "pet") {
+      call<void>("show_main_section", { section }).catch((error) => setStatus(String(error)));
+      setQuickMenuOpen(false);
+      return;
+    }
+    scrollToSection(section);
   }
 
   function patchRoutine(id: string, patch: Partial<Routine>) {
@@ -378,7 +570,8 @@ function App() {
   }
 
   async function startFocus() {
-    const routine = selectedRoutine ?? data.routines[0];
+    const latest = dataRef.current;
+    const routine = latest.routines.find((item) => item.id === selectedRoutineIdRef.current) ?? latest.routines[0];
     if (!routine) return;
     setStatus(`${routine.subject} 집중 타이머를 시작했습니다.`);
     await notify("집중 시작", routine.message || `${routine.subject} 집중 시간입니다.`);
@@ -394,6 +587,57 @@ function App() {
     setSession(null);
     setPetMood("idle");
     setStatus("타이머를 정지했습니다.");
+  }
+
+  async function quickReminder() {
+    await notify("빠른 알림", `${selectedPet?.displayName ?? "펫"}이 지금 확인할 일을 알려줍니다.`);
+    setStatus("빠른 알림을 보냈습니다.");
+    setPetMood("success");
+    setQuickMenuOpen(false);
+  }
+
+  async function openQuickAction(action: QuickAction) {
+    const target = action.target.trim();
+    if (!target) return;
+    if (!isTauriRuntime()) {
+      setStatus("브라우저 미리보기에서는 바로가기를 열 수 없습니다.");
+      return;
+    }
+    if (isUrlTarget(target)) {
+      await openUrl(target);
+    } else {
+      await openPath(target);
+    }
+    setStatus(`${action.name} 바로가기를 열었습니다.`);
+    setQuickMenuOpen(false);
+  }
+
+  function addQuickAction() {
+    const name = quickActionName.trim();
+    const target = quickActionTarget.trim();
+    if (!name || !target) return;
+    const action: QuickAction = {
+      id: `quick-${Date.now()}`,
+      name,
+      target,
+      enabled: true,
+    };
+    patchSettings({ quickActions: [...data.settings.quickActions, action] });
+    setQuickActionName("");
+    setQuickActionTarget("");
+    setStatus(`${name} 바로가기를 추가했습니다.`);
+  }
+
+  function removeQuickAction(id: string) {
+    patchSettings({ quickActions: data.settings.quickActions.filter((action) => action.id !== id) });
+  }
+
+  function toggleQuickAction(id: string) {
+    patchSettings({
+      quickActions: data.settings.quickActions.map((action) =>
+        action.id === id ? { ...action, enabled: !action.enabled } : action,
+      ),
+    });
   }
 
   async function chooseFolder() {
@@ -436,17 +680,37 @@ function App() {
           <p className="eyebrow">HighLearning</p>
           <h1>Pet Reminder</h1>
         </div>
-        <div className="pet-stage">
+        <div className="pet-stage" ref={petsRef} onClick={() => setQuickMenuOpen((value) => !value)}>
           <PetSprite
             pet={selectedPet}
-            state={petMood}
-            active={data.settings.animationMode === "low-fps" || petMood !== "idle"}
+            state={currentPetMood}
+            active={data.settings.animationMode === "low-fps" || currentPetMood !== "idle"}
             size={154}
+            speedMs={level === "높음" ? 150 : level === "보통" ? 220 : 320}
           />
           <div>
             <strong>{selectedPet?.displayName}</strong>
             <span>{selectedPet?.description}</span>
           </div>
+          <div className={`resource-inline level-${level}`}>
+            <span>CPU {Math.round(resource?.cpuPercent ?? 0)}%</span>
+            <span>MEM {Math.round(resource?.memoryPercent ?? 0)}%</span>
+            <span>{resource?.batteryPercent != null ? `BAT ${Math.round(resource.batteryPercent)}%` : "BAT -"}</span>
+          </div>
+          {quickMenuOpen && (
+            <QuickMenu
+              quickActions={data.settings.quickActions}
+              sessionActive={Boolean(session)}
+              onStartFocus={startFocus}
+              onStopFocus={stopFocus}
+              onQuickReminder={quickReminder}
+              onShowRoutines={() => scrollToSection("routines")}
+              onShowPets={() => scrollToSection("pets")}
+              onShowImport={() => scrollToSection("import")}
+              onShowSettings={() => scrollToSection("settings")}
+              onOpenQuickAction={openQuickAction}
+            />
+          )}
         </div>
         <nav className="pet-list">
           {pets.map((pet) => (
@@ -460,7 +724,7 @@ function App() {
             </button>
           ))}
         </nav>
-        <div className="toggles">
+        <div className="toggles" ref={settingsRef}>
           <label>
             <input
               type="checkbox"
@@ -477,12 +741,42 @@ function App() {
             />
             저FPS 상시 애니메이션
           </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={data.settings.resourceMonitorEnabled}
+              onChange={(event) => patchSettings({ resourceMonitorEnabled: event.target.checked })}
+            />
+            리소스 반응
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={data.settings.batteryMonitorEnabled}
+              onChange={(event) => patchSettings({ batteryMonitorEnabled: event.target.checked })}
+            />
+            배터리 반응
+          </label>
+          <div className="quick-action-editor">
+            <strong>바로가기</strong>
+            <input value={quickActionName} onChange={(event) => setQuickActionName(event.target.value)} placeholder="이름" />
+            <input value={quickActionTarget} onChange={(event) => setQuickActionTarget(event.target.value)} placeholder="https:// 또는 파일 경로" />
+            <button onClick={addQuickAction} disabled={!quickActionName.trim() || !quickActionTarget.trim()}>추가</button>
+            {data.settings.quickActions.map((action) => (
+              <div className="quick-action-row" key={action.id}>
+                <button className={action.enabled ? "selected" : ""} onClick={() => toggleQuickAction(action.id)}>
+                  {action.name}
+                </button>
+                <button className="ghost" onClick={() => removeQuickAction(action.id)}>삭제</button>
+              </div>
+            ))}
+          </div>
         </div>
       </aside>
 
       <section className="workspace">
         <header className="topbar">
-          <div>
+          <div ref={routinesRef}>
             <p className="eyebrow">로컬 전용 루틴</p>
             <h2>오늘 루틴</h2>
           </div>
@@ -598,7 +892,7 @@ function App() {
           )}
         </section>
 
-        <section className="panel import-panel">
+        <section className="panel import-panel" ref={importRef}>
           <div className="panel-heading">
             <h3>Codex 펫 추가</h3>
             <span>pet.json + spritesheet.webp</span>

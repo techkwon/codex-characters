@@ -11,11 +11,13 @@ use std::{
     thread,
     time::Duration,
 };
+use battery::units::ratio::percent;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, State,
 };
+use sysinfo::System;
 use url::Url;
 use zip::ZipArchive;
 
@@ -54,18 +56,40 @@ struct Routine {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+struct QuickAction {
+    id: String,
+    name: String,
+    target: String,
+    enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct AppSettings {
+    #[serde(default = "default_selected_pet_id")]
     selected_pet_id: String,
+    #[serde(default)]
     pet_window_enabled: bool,
+    #[serde(default = "default_animation_mode")]
     animation_mode: String,
+    #[serde(default)]
     autostart_enabled: bool,
+    #[serde(default = "default_true")]
+    resource_monitor_enabled: bool,
+    #[serde(default = "default_true")]
+    battery_monitor_enabled: bool,
+    #[serde(default)]
+    quick_actions: Vec<QuickAction>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct AppData {
+    #[serde(default = "default_settings")]
     settings: AppSettings,
+    #[serde(default)]
     routines: Vec<Routine>,
+    #[serde(default)]
     installed_pets: Vec<PetSummary>,
 }
 
@@ -98,14 +122,51 @@ struct SessionRuntime {
     cancel: Option<Arc<AtomicBool>>,
 }
 
+#[derive(Debug)]
+struct ResourceRuntime {
+    enabled: bool,
+    battery_enabled: bool,
+}
+
+#[derive(Clone)]
+struct ResourceMonitorState(Arc<Mutex<ResourceRuntime>>);
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ResourceSnapshot {
+    cpu_percent: f32,
+    memory_percent: f32,
+    battery_percent: Option<f32>,
+    battery_state: Option<String>,
+}
+
+fn default_true() -> bool {
+    true
+}
+
+fn default_selected_pet_id() -> String {
+    "calico".to_string()
+}
+
+fn default_animation_mode() -> String {
+    "event".to_string()
+}
+
+fn default_settings() -> AppSettings {
+    AppSettings {
+        selected_pet_id: default_selected_pet_id(),
+        pet_window_enabled: false,
+        animation_mode: default_animation_mode(),
+        autostart_enabled: false,
+        resource_monitor_enabled: true,
+        battery_monitor_enabled: true,
+        quick_actions: Vec::new(),
+    }
+}
+
 fn default_data() -> AppData {
     AppData {
-        settings: AppSettings {
-            selected_pet_id: "calico".to_string(),
-            pet_window_enabled: false,
-            animation_mode: "event".to_string(),
-            autostart_enabled: false,
-        },
+        settings: default_settings(),
         routines: vec![Routine {
             id: "default-focus".to_string(),
             subject: "오늘의 학습".to_string(),
@@ -113,7 +174,7 @@ fn default_data() -> AppData {
             break_minutes: 5,
             repeat_days: vec![1, 2, 3, 4, 5],
             enabled: true,
-            message: "하로와 함께 집중할 시간입니다.".to_string(),
+            message: "오늘의 펫과 함께 집중할 시간입니다.".to_string(),
         }],
         installed_pets: Vec::new(),
     }
@@ -279,6 +340,79 @@ fn save_state_inner(app: &AppHandle, data: &AppData) -> Result<()> {
     let path = state_path(app)?;
     fs::write(path, serde_json::to_string_pretty(data)?)?;
     Ok(())
+}
+
+fn battery_snapshot(enabled: bool) -> (Option<f32>, Option<String>) {
+    if !enabled {
+        return (None, None);
+    }
+    let manager = match battery::Manager::new() {
+        Ok(value) => value,
+        Err(_) => return (None, None),
+    };
+    let mut batteries = match manager.batteries() {
+        Ok(value) => value,
+        Err(_) => return (None, None),
+    };
+    let Some(Ok(battery)) = batteries.next() else {
+        return (None, None);
+    };
+    (
+        Some(battery.state_of_charge().get::<percent>()),
+        Some(format!("{:?}", battery.state())),
+    )
+}
+
+fn collect_resource_snapshot(system: &mut System, battery_enabled: bool) -> ResourceSnapshot {
+    system.refresh_cpu();
+    system.refresh_memory();
+    let total_memory = system.total_memory() as f32;
+    let memory_percent = if total_memory > 0.0 {
+        (system.used_memory() as f32 / total_memory) * 100.0
+    } else {
+        0.0
+    };
+    let (battery_percent, battery_state) = battery_snapshot(battery_enabled);
+    ResourceSnapshot {
+        cpu_percent: system.global_cpu_info().cpu_usage(),
+        memory_percent,
+        battery_percent,
+        battery_state,
+    }
+}
+
+fn spawn_resource_monitor(app: AppHandle, state: ResourceMonitorState) {
+    thread::spawn(move || {
+        let mut system = System::new();
+        system.refresh_cpu();
+        loop {
+            let (enabled, battery_enabled) = match state.0.lock() {
+                Ok(runtime) => (runtime.enabled, runtime.battery_enabled),
+                Err(_) => (false, false),
+            };
+            if !enabled {
+                thread::sleep(Duration::from_secs(10));
+                continue;
+            }
+
+            let pet_visible = app
+                .get_webview_window("pet")
+                .and_then(|window| window.is_visible().ok())
+                .unwrap_or(false);
+            let main_visible = app
+                .get_webview_window("main")
+                .and_then(|window| window.is_visible().ok())
+                .unwrap_or(false);
+            if !pet_visible && !main_visible {
+                thread::sleep(Duration::from_secs(10));
+                continue;
+            }
+
+            let snapshot = collect_resource_snapshot(&mut system, battery_enabled);
+            let _ = app.emit("resource-snapshot", snapshot);
+            thread::sleep(Duration::from_secs(if pet_visible { 2 } else { 10 }));
+        }
+    });
 }
 
 fn github_tree_to_raw(url: &Url) -> Option<(String, String)> {
@@ -500,6 +634,28 @@ fn show_pet_window(app: AppHandle, show: bool) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn show_main_section(app: AppHandle, section: String) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("main") {
+        window.show().map_err(|error| error.to_string())?;
+        window.set_focus().ok();
+    }
+    app.emit("show-main-section", section)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn set_resource_monitor_settings(
+    state: State<'_, ResourceMonitorState>,
+    enabled: bool,
+    battery_enabled: bool,
+) -> Result<(), String> {
+    let mut runtime = state.0.lock().map_err(|_| "resource monitor lock failed")?;
+    runtime.enabled = enabled;
+    runtime.battery_enabled = battery_enabled;
+    Ok(())
+}
+
+#[tauri::command]
 fn start_focus_session(
     app: AppHandle,
     runtime: State<'_, Mutex<SessionRuntime>>,
@@ -591,6 +747,10 @@ fn setup_tray(app: &mut tauri::App) -> Result<()> {
 }
 
 pub fn run() {
+    let resource_state = ResourceMonitorState(Arc::new(Mutex::new(ResourceRuntime {
+        enabled: true,
+        battery_enabled: true,
+    })));
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
@@ -598,9 +758,12 @@ pub fn run() {
             None,
         ))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .manage(Mutex::new(SessionRuntime::default()))
+        .manage(resource_state.clone())
         .setup(|app| {
             setup_tray(app)?;
+            spawn_resource_monitor(app.handle().clone(), resource_state);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -613,6 +776,8 @@ pub fn run() {
             validate_pet_url,
             install_pet_from_url,
             show_pet_window,
+            show_main_section,
+            set_resource_monitor_settings,
             start_focus_session,
             stop_focus_session
         ])

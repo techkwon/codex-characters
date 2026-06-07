@@ -79,19 +79,27 @@ codex-characters/
 
 ## HighLearning Pet Reminder 앱
 
-`apps/desktop`에는 Codex 없이 단독 실행되는 학습 알림 앱 MVP가 들어 있습니다.
+`apps/desktop`에는 Codex 없이 단독 실행되는 학습 알림 앱이 들어 있습니다.
 
 핵심 방향은 세 가지입니다.
 
 1. 쉬운 설치: 첫 배포는 portable 빌드를 우선합니다.
 2. Codex 펫 호환: `pet.json`과 `spritesheet.webp`를 그대로 읽습니다.
-3. 가벼움: 기본은 트레이/메뉴바 상주와 이벤트 중심 펫 반응입니다.
+3. 가벼움: 기본은 트레이/메뉴바 상주, 저주기 리소스 감지, 이벤트 중심 펫 반응입니다.
 
 현재 배포 목표:
 
 - Windows: `MSI`, `NSIS`, portable ZIP
 - macOS: `DMG`, portable app
 - Mac App Store 등록은 제외
+
+상업 수준 v0.2에서 추가된 제품 포인트:
+
+- 펫 클릭 메뉴: 펫을 누르면 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정, 사용자 바로가기를 바로 실행합니다.
+- 리소스 반응: Rust 백엔드가 CPU, 메모리, 배터리를 낮은 주기로 확인하고 펫 상태와 속도 배지로 보여줍니다.
+- 사용자 바로가기: URL 또는 파일 경로를 등록해 펫 메뉴에서 바로 열 수 있습니다.
+- 로컬 전용 저장: 루틴, 설정, 설치한 펫, 바로가기는 앱 데이터 디렉터리에만 저장합니다.
+- Codex 펫 확장: 로컬 폴더, GitHub 폴더, `pet.json` URL, ZIP URL에서 외부 펫을 추가할 수 있습니다.
 
 개발 실행:
 
@@ -106,6 +114,7 @@ npm run dev
 ```bash
 cd apps/desktop
 npm run typecheck
+npm run build:ui
 cd src-tauri
 cargo check
 ```
@@ -125,10 +134,30 @@ npm run build
 - 기본 펫 `Calico`, `Max` 제공
 - 기존 펫 `Haro`, `Airo` 선택 가능
 - 펫 창 열기/닫기
+- 펫 클릭 메뉴에서 주요 기능 바로 실행
+- CPU/메모리/배터리 상태에 따른 펫 반응
+- URL/파일 사용자 바로가기 추가, 켜기/끄기, 삭제
 - 로컬 Codex 펫 폴더 가져오기
 - GitHub 폴더, `pet.json` URL, ZIP URL에서 펫 가져오기
 - 설치 전 `pet.json`과 `spritesheet.webp` 검증
 - 설정/루틴/추가 펫 목록 로컬 저장
+
+빌드가 끝나면 macOS에서는 다음 산출물이 생성됩니다.
+
+```text
+apps/desktop/src-tauri/target/release/bundle/macos/HighLearning Pet Reminder.app
+apps/desktop/src-tauri/target/release/bundle/dmg/HighLearning Pet Reminder_0.1.0_aarch64.dmg
+```
+
+### 데스크톱 앱 사용 방법
+
+1. 앱을 실행하면 기본 펫은 `Calico`입니다. 왼쪽 펫 목록에서 `Max`, `Haro`, `Airo` 또는 설치한 외부 펫으로 바꿀 수 있습니다.
+2. `펫 창 표시`를 켜면 투명한 작은 펫 창이 뜹니다. 펫 창은 항상 위에 표시되며 작업 중에도 빠르게 누를 수 있습니다.
+3. 펫을 클릭하면 액션 메뉴가 열립니다. 여기서 집중 시작/정지, 빠른 알림, 오늘 루틴, 펫 변경, 펫 추가, 설정을 바로 실행합니다.
+4. `리소스 반응`을 켜면 CPU와 메모리 사용률에 따라 펫 상태와 애니메이션 속도가 바뀝니다.
+5. `배터리 반응`을 켜면 배터리가 있는 기기에서 배터리 잔량도 함께 표시합니다. 배터리가 없는 데스크톱에서는 `BAT -`로 표시됩니다.
+6. `바로가기`에 이름과 대상을 입력하면 펫 클릭 메뉴에 추가됩니다. 대상은 `https://...` 같은 URL 또는 로컬 파일 경로를 사용할 수 있습니다.
+7. 외부 Codex 펫은 `Codex 펫 추가` 영역에서 로컬 폴더, GitHub 폴더, `pet.json` URL, ZIP URL로 가져옵니다. 검증을 통과해야 설치됩니다.
 
 ## 사용 방법
 

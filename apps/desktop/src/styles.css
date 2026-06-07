@@ -112,6 +112,7 @@ h3 {
 }
 
 .pet-stage {
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 8px;
@@ -120,6 +121,7 @@ h3 {
   border-radius: 8px;
   background: #fffdfa;
   text-align: center;
+  cursor: pointer;
 }
 
 .pet-stage strong {
@@ -138,6 +140,66 @@ h3 {
   image-rendering: auto;
   background-repeat: no-repeat;
   background-origin: border-box;
+}
+
+.resource-inline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  color: #34413c;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.resource-inline span,
+.resource-pill {
+  min-width: 0;
+  border: 1px solid #d7dcd2;
+  border-radius: 999px;
+  background: #f4f8f4;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.level-높음 span,
+.resource-pill.level-높음 {
+  border-color: #e4b0a4;
+  background: #fff0ec;
+}
+
+.level-보통 span,
+.resource-pill.level-보통 {
+  border-color: #dbc77d;
+  background: #fff8d9;
+}
+
+.level-낮음 span,
+.resource-pill.level-낮음 {
+  border-color: #a8cbbd;
+  background: #eefaf5;
+}
+
+.quick-menu {
+  position: absolute;
+  z-index: 20;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  gap: 6px;
+  width: min(210px, calc(100% - 24px));
+  padding: 8px;
+  border: 1px solid #becac3;
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.97);
+  box-shadow: 0 12px 28px rgba(23, 32, 29, 0.16);
+}
+
+.quick-menu button {
+  justify-content: start;
+  min-height: 32px;
+  padding: 0 10px;
+  text-align: left;
 }
 
 .pet-list {
@@ -185,10 +247,38 @@ small {
   font-size: 13px;
 }
 
-.toggles input,
-.inline input {
+.toggles input[type="checkbox"],
+.inline input[type="checkbox"] {
   width: 16px;
   min-height: 16px;
+}
+
+.quick-action-editor {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.quick-action-editor strong {
+  font-size: 13px;
+}
+
+.quick-action-editor input {
+  min-height: 34px;
+}
+
+.quick-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.quick-action-row button:first-child {
+  overflow: hidden;
+  padding: 0 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .workspace {
@@ -384,12 +474,32 @@ small {
 }
 
 .pet-window {
+  position: relative;
   width: 100vw;
   height: 100vh;
   display: grid;
   place-items: center;
   overflow: hidden;
   background: transparent;
+}
+
+.pet-window .resource-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  max-width: calc(100% - 16px);
+  transform: translateX(-50%);
+  color: #17201d;
+  font-size: 11px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pet-window .quick-menu {
+  top: 8px;
+  left: 8px;
+  width: min(190px, calc(100% - 16px));
 }
 
 @media (max-width: 900px) {
