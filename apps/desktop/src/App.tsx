@@ -706,6 +706,20 @@ function App() {
     setStatus("설정, 루틴, 설치한 펫 백업을 저장했습니다.");
   }
 
+  async function exportDiagnostics() {
+    if (!isTauriRuntime()) {
+      setStatus("브라우저 미리보기에서는 진단 파일을 만들 수 없습니다.");
+      return;
+    }
+    const selected = await save({
+      defaultPath: `highlearning-pet-reminder-diagnostics-${new Date().toISOString().slice(0, 10)}.zip`,
+      filters: [{ name: "HighLearning Diagnostics", extensions: ["zip"] }],
+    });
+    if (!selected) return;
+    await call<void>("export_diagnostics", { path: selected });
+    setStatus("지원용 진단 ZIP을 저장했습니다. 바로가기 대상 값은 제외됩니다.");
+  }
+
   async function importBackup() {
     if (!isTauriRuntime()) {
       setStatus("브라우저 미리보기에서는 백업을 가져올 수 없습니다.");
@@ -837,6 +851,7 @@ function App() {
             <strong>데이터 관리</strong>
             <button onClick={exportBackup}>백업 내보내기</button>
             <button onClick={importBackup}>백업 가져오기</button>
+            <button onClick={exportDiagnostics}>진단 내보내기</button>
             <button onClick={openDataFolder}>데이터 폴더 열기</button>
           </div>
         </div>

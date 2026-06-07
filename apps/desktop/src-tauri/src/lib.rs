@@ -144,6 +144,49 @@ struct ResourceSnapshot {
     battery_state: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DiagnosticsSummary {
+    app_version: String,
+    tauri_version: String,
+    os: String,
+    arch: String,
+    app_data_dir_exists: bool,
+    routine_count: usize,
+    enabled_routine_count: usize,
+    installed_pet_count: usize,
+    selected_pet_id: String,
+    pet_window_enabled: bool,
+    animation_mode: String,
+    resource_monitor_enabled: bool,
+    battery_monitor_enabled: bool,
+    quick_action_count: usize,
+    enabled_quick_action_count: usize,
+    installed_pets: Vec<DiagnosticPet>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DiagnosticPet {
+    id: String,
+    display_name: String,
+    source: String,
+    has_manifest: bool,
+    has_spritesheet: bool,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DiagnosticRoutine {
+    focus_minutes: u32,
+    break_minutes: u32,
+    start_time: String,
+    repeat_day_count: usize,
+    enabled: bool,
+    subject_length: usize,
+    message_length: usize,
+}
+
 fn default_true() -> bool {
     true
 }
@@ -440,6 +483,53 @@ fn normalize_installed_pet_paths(app: &AppHandle, mut data: AppData) -> Result<A
     Ok(data)
 }
 
+fn diagnostics_summary(app: &AppHandle, data: &AppData) -> Result<DiagnosticsSummary> {
+    let app_data_dir = app_data_dir(app)?;
+    let installed_pets = data
+        .installed_pets
+        .iter()
+        .map(|pet| DiagnosticPet {
+            id: pet.id.clone(),
+            display_name: pet.display_name.clone(),
+            source: pet.source.clone(),
+            has_manifest: pet
+                .manifest_path
+                .as_ref()
+                .map(|path| Path::new(path).is_file())
+                .unwrap_or(false),
+            has_spritesheet: Path::new(&pet.spritesheet_path).is_file(),
+        })
+        .collect();
+
+    Ok(DiagnosticsSummary {
+        app_version: env!("CARGO_PKG_VERSION").to_string(),
+        tauri_version: tauri::VERSION.to_string(),
+        os: std::env::consts::OS.to_string(),
+        arch: std::env::consts::ARCH.to_string(),
+        app_data_dir_exists: app_data_dir.is_dir(),
+        routine_count: data.routines.len(),
+        enabled_routine_count: data
+            .routines
+            .iter()
+            .filter(|routine| routine.enabled)
+            .count(),
+        installed_pet_count: data.installed_pets.len(),
+        selected_pet_id: data.settings.selected_pet_id.clone(),
+        pet_window_enabled: data.settings.pet_window_enabled,
+        animation_mode: data.settings.animation_mode.clone(),
+        resource_monitor_enabled: data.settings.resource_monitor_enabled,
+        battery_monitor_enabled: data.settings.battery_monitor_enabled,
+        quick_action_count: data.settings.quick_actions.len(),
+        enabled_quick_action_count: data
+            .settings
+            .quick_actions
+            .iter()
+            .filter(|action| action.enabled)
+            .count(),
+        installed_pets,
+    })
+}
+
 fn battery_snapshot(enabled: bool) -> (Option<f32>, Option<String>) {
     if !enabled {
         return (None, None);
@@ -711,6 +801,54 @@ fn export_app_backup(app: AppHandle, path: String) -> Result<(), String> {
         .map_err(|error| error.to_string())?
         .join("pets");
     add_dir_to_zip(&mut zip, &pet_root, &pet_root, "pets").map_err(|error| error.to_string())?;
+    zip.finish().map_err(|error| error.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn export_diagnostics(app: AppHandle, path: String) -> Result<(), String> {
+    let data = load_state_inner(&app).map_err(|error| error.to_string())?;
+    let summary = diagnostics_summary(&app, &data).map_err(|error| error.to_string())?;
+    let target = PathBuf::from(path);
+    if let Some(parent) = target.parent() {
+        fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+    }
+
+    let file = File::create(&target).map_err(|error| error.to_string())?;
+    let mut zip = ZipWriter::new(file);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+
+    zip.start_file("diagnostics.json", options)
+        .map_err(|error| error.to_string())?;
+    zip.write_all(&serde_json::to_vec_pretty(&summary).map_err(|error| error.to_string())?)
+        .map_err(|error| error.to_string())?;
+
+    let state = serde_json::json!({
+        "routines": data.routines.iter().map(|routine| DiagnosticRoutine {
+            focus_minutes: routine.focus_minutes,
+            break_minutes: routine.break_minutes,
+            start_time: routine.start_time.clone(),
+            repeat_day_count: routine.repeat_days.len(),
+            enabled: routine.enabled,
+            subject_length: routine.subject.chars().count(),
+            message_length: routine.message.chars().count(),
+        }).collect::<Vec<_>>(),
+        "installedPets": summary.installed_pets,
+        "settings": {
+            "selectedPetId": data.settings.selected_pet_id,
+            "petWindowEnabled": data.settings.pet_window_enabled,
+            "animationMode": data.settings.animation_mode,
+            "autostartEnabled": data.settings.autostart_enabled,
+            "resourceMonitorEnabled": data.settings.resource_monitor_enabled,
+            "batteryMonitorEnabled": data.settings.battery_monitor_enabled,
+            "quickActionCount": data.settings.quick_actions.len(),
+            "enabledQuickActionCount": data.settings.quick_actions.iter().filter(|action| action.enabled).count()
+        }
+    });
+    zip.start_file("state-redacted.json", options)
+        .map_err(|error| error.to_string())?;
+    zip.write_all(&serde_json::to_vec_pretty(&state).map_err(|error| error.to_string())?)
+        .map_err(|error| error.to_string())?;
     zip.finish().map_err(|error| error.to_string())?;
     Ok(())
 }
@@ -1043,6 +1181,7 @@ pub fn run() {
             set_resource_monitor_settings,
             app_data_location,
             export_app_backup,
+            export_diagnostics,
             import_app_backup,
             start_focus_session,
             stop_focus_session
