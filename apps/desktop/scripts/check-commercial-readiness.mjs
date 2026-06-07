@@ -180,7 +180,7 @@ function checkStandalonePetExperience() {
   assert(appTsx.includes("petStatusText"), "pet shows Codex-style situational status text");
   assert(appTsx.includes("animationSpeed(resource)"), "pet animation speed is linked to resource pressure");
   assert(appRust.includes("set_pet_window_size"), "backend exposes pet window size command");
-  assert(appRust.includes("fn default_pet_size() -> u32 {\n    150\n}"), "backend default pet size is compact");
+  assert(/fn\s+default_pet_size\(\)\s*->\s*u32\s*\{\s*150\s*\}/.test(appRust), "backend default pet size is compact");
   assert(appRust.includes("pet_layout_version"), "backend migrates old pet layout defaults once");
   assert(appRust.includes("116.0"), "backend lower-right placement leaves room above the Dock/taskbar");
   assert(appRust.includes("move_pet_window"), "backend exposes pet move command");
