@@ -89,7 +89,7 @@ function releaseNotes(nextVersion) {
     .split("\n")
     .filter(Boolean);
   const body = commits.length ? commits.join("\n") : "- Initial release candidate";
-  return `# HighLearning Pet Reminder ${nextVersion}\n\nRelease date: ${today}\n\n## Changes\n\n${body}\n\n## Verification\n\n- npm run typecheck\n- npm run build:ui\n- cargo check\n- npm run build\n- npm run package:portable:mac\n- GitHub Actions Desktop Build macOS arm64 / Windows x64\n\n## Distribution\n\n- macOS: app, dmg, portable zip\n- Windows: msi, nsis, portable zip\n`;
+  return `# HighLearning Pet Reminder ${nextVersion}\n\nRelease date: ${today}\n\n## Changes\n\n${body}\n\n## Verification\n\n- npm run typecheck\n- npm run commercial:check\n- npm run build:ui\n- cargo check\n- npm run build\n- npm run package:portable:mac\n- GitHub Actions Desktop Build macOS arm64 / Windows x64\n\n## Distribution\n\n- macOS: app, dmg, portable zip\n- Windows: msi, nsis, portable zip\n`;
 }
 
 function updateVersion(nextVersion) {

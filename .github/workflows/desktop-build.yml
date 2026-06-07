@@ -81,6 +81,10 @@ jobs:
         working-directory: apps/desktop
         run: npm run signing:check
 
+      - name: Check commercial readiness
+        working-directory: apps/desktop
+        run: npm run commercial:check
+
       - name: Check Rust
         working-directory: apps/desktop/src-tauri
         run: cargo check

@@ -17,6 +17,7 @@
     "release:prepare": "node scripts/prepare-release.mjs",
     "signing:check": "node scripts/check-signing-readiness.mjs",
     "signing:check:strict": "node scripts/check-signing-readiness.mjs --strict",
+    "commercial:check": "node scripts/check-commercial-readiness.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
