@@ -3,8 +3,17 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_NAME="HighLearning Pet Reminder"
-APP_PATH="$ROOT_DIR/src-tauri/target/release/bundle/macos/$APP_NAME.app"
-OUT_DIR="$ROOT_DIR/src-tauri/target/release/bundle/portable"
+DEFAULT_BUNDLE_DIR="$ROOT_DIR/src-tauri/target/release/bundle"
+TARGET_BUNDLE_DIR="$ROOT_DIR/src-tauri/target/aarch64-apple-darwin/release/bundle"
+
+if [[ -d "$TARGET_BUNDLE_DIR/macos/$APP_NAME.app" ]]; then
+  BUNDLE_DIR="$TARGET_BUNDLE_DIR"
+else
+  BUNDLE_DIR="$DEFAULT_BUNDLE_DIR"
+fi
+
+APP_PATH="$BUNDLE_DIR/macos/$APP_NAME.app"
+OUT_DIR="$BUNDLE_DIR/portable"
 ZIP_PATH="$OUT_DIR/${APP_NAME// /-}_macos_aarch64_portable.zip"
 
 if [[ ! -d "$APP_PATH" ]]; then

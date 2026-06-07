@@ -136,6 +136,14 @@ npm run build
 npm run package:portable:mac
 ```
 
+Windows portable ZIP 만들기:
+
+```powershell
+cd apps/desktop
+npm run build
+npm run package:portable:win
+```
+
 macOS 리소스 측정:
 
 ```bash
@@ -166,9 +174,14 @@ npm run measure:mac
 apps/desktop/src-tauri/target/release/bundle/macos/HighLearning Pet Reminder.app
 apps/desktop/src-tauri/target/release/bundle/dmg/HighLearning Pet Reminder_0.1.0_aarch64.dmg
 apps/desktop/src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_macos_aarch64_portable.zip
+apps/desktop/src-tauri/target/release/bundle/msi/*.msi
+apps/desktop/src-tauri/target/release/bundle/nsis/*.exe
+apps/desktop/src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_windows_x64_portable.zip
 ```
 
 앱 아이콘은 기본 캐릭터 방향에 맞춘 `HL PET` 브랜드 마크를 사용합니다. 원본 아이콘 세트는 `apps/desktop/src-tauri/icons/`에 있으며 Tauri 번들에 포함됩니다.
+
+GitHub Actions의 `Desktop Build` 워크플로는 `main` push, pull request, 수동 실행에서 macOS arm64와 Windows x64 빌드를 검증하고 설치 파일/portable ZIP을 artifact로 업로드합니다.
 
 ### 데스크톱 앱 사용 방법
 

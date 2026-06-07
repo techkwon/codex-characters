@@ -10,6 +10,7 @@
     "build:ui": "tsc && vite build",
     "measure:mac": "bash scripts/measure-macos-resources.sh",
     "package:portable:mac": "bash scripts/package-portable-macos.sh",
+    "package:portable:win": "powershell -ExecutionPolicy Bypass -File scripts/package-portable-windows.ps1",
     "preview": "vite preview --host 127.0.0.1 --port 1420",
     "typecheck": "tsc --noEmit"
   },

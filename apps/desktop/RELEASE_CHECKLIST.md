@@ -13,11 +13,25 @@ npm run build
 npm run package:portable:mac
 ```
 
+Windows runner:
+
+```powershell
+npm run typecheck
+npm run build:ui
+cd src-tauri
+cargo check
+cd ..
+npm run build
+npm run package:portable:win
+```
+
 통과 기준:
 
 - TypeScript 오류 없음
 - Rust `cargo check` 오류 없음
 - macOS `.app`, `.dmg`, portable `.zip` 생성
+- Windows `msi`, `nsis`, portable `.zip` 생성
+- GitHub Actions `Desktop Build` workflow에서 macOS arm64와 Windows x64 artifact 업로드
 - 앱 실행 후 첫 화면에서 `Calico`, `Max`, `Haro`, `Airo`가 선택 가능
 
 ## 2. 기능 회귀 확인
@@ -62,6 +76,20 @@ src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_macos_aarch64
 ```
 
 Windows는 별도 Windows 환경에서 `npm run build` 후 `msi`, `nsis`, portable ZIP을 확인합니다.
+
+Windows:
+
+```text
+src-tauri/target/release/bundle/msi/*.msi
+src-tauri/target/release/bundle/nsis/*.exe
+src-tauri/target/release/bundle/portable/HighLearning-Pet-Reminder_windows_x64_portable.zip
+```
+
+CI:
+
+- Workflow: `.github/workflows/desktop-build.yml`
+- Trigger: `main` push, pull request, manual `workflow_dispatch`
+- Artifacts: `highlearning-pet-reminder-macos-arm64`, `highlearning-pet-reminder-windows-x64`
 
 ## 5. 배포 제외 사항
 
