@@ -74,6 +74,17 @@ type RecommendedPet = {
   url: string;
 };
 
+type UpdateCheck = {
+  currentVersion: string;
+  latestVersion?: string | null;
+  latestTag?: string | null;
+  releaseName?: string | null;
+  releaseUrl?: string | null;
+  updateAvailable: boolean;
+  prerelease: boolean;
+  message: string;
+};
+
 type SessionTick = {
   subject: string;
   phase: "focus" | "break";
@@ -203,6 +214,18 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
       } as T;
     }
     if (command === "app_data_location") return "/preview/highlearning-pet-reminder" as T;
+    if (command === "check_for_updates") {
+      return {
+        currentVersion: "0.1.0",
+        latestVersion: null,
+        latestTag: null,
+        releaseName: null,
+        releaseUrl: null,
+        updateAvailable: false,
+        prerelease: false,
+        message: "브라우저 미리보기에서는 업데이트 확인을 실행할 수 없습니다.",
+      } as T;
+    }
     return undefined as T;
   }
   return invoke<T>(command, args);
@@ -397,6 +420,8 @@ function App() {
   const [quickActionName, setQuickActionName] = useState("");
   const [quickActionTarget, setQuickActionTarget] = useState("");
   const [validation, setValidation] = useState<PetValidation | null>(null);
+  const [updateCheck, setUpdateCheck] = useState<UpdateCheck | null>(null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [status, setStatus] = useState("로컬 데이터만 사용합니다.");
   const saveTimer = useRef<number | null>(null);
   const dataRef = useRef<AppData>(fallbackData);
@@ -749,6 +774,30 @@ function App() {
     setStatus("앱 데이터 폴더를 열었습니다.");
   }
 
+  async function checkUpdates() {
+    setCheckingUpdate(true);
+    try {
+      const result = await call<UpdateCheck>("check_for_updates");
+      setUpdateCheck(result);
+      setStatus(result.message);
+    } catch (error) {
+      setStatus(`업데이트 확인 실패: ${String(error)}`);
+    } finally {
+      setCheckingUpdate(false);
+    }
+  }
+
+  async function openReleasePage() {
+    const url = updateCheck?.releaseUrl;
+    if (!url) return;
+    if (!isTauriRuntime()) {
+      setStatus(`릴리스 페이지: ${url}`);
+      return;
+    }
+    await openUrl(url);
+    setStatus("릴리스 페이지를 열었습니다.");
+  }
+
   return (
     <main className="app-shell">
       <aside className="sidebar">
@@ -853,6 +902,19 @@ function App() {
             <button onClick={importBackup}>백업 가져오기</button>
             <button onClick={exportDiagnostics}>진단 내보내기</button>
             <button onClick={openDataFolder}>데이터 폴더 열기</button>
+          </div>
+          <div className="quick-action-editor">
+            <strong>업데이트</strong>
+            <button onClick={checkUpdates} disabled={checkingUpdate}>
+              {checkingUpdate ? "확인 중" : "업데이트 확인"}
+            </button>
+            <button onClick={openReleasePage} disabled={!updateCheck?.releaseUrl}>릴리스 열기</button>
+            {updateCheck && (
+              <small>
+                현재 {updateCheck.currentVersion}
+                {updateCheck.latestVersion ? ` · 최신 ${updateCheck.latestVersion}` : ""}
+              </small>
+            )}
           </div>
         </div>
       </aside>

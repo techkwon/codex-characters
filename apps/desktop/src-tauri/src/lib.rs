@@ -121,6 +121,29 @@ struct RecommendedPet {
     url: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct GitHubRelease {
+    tag_name: String,
+    html_url: String,
+    name: Option<String>,
+    draft: bool,
+    prerelease: bool,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct UpdateCheck {
+    current_version: String,
+    latest_version: Option<String>,
+    latest_tag: Option<String>,
+    release_name: Option<String>,
+    release_url: Option<String>,
+    update_available: bool,
+    prerelease: bool,
+    message: String,
+}
+
 #[derive(Default)]
 struct SessionRuntime {
     cancel: Option<Arc<AtomicBool>>,
@@ -697,6 +720,53 @@ fn download_bytes(url: &str) -> Result<Vec<u8>> {
     Ok(response.bytes()?.to_vec())
 }
 
+fn parse_release_version(tag: &str) -> Option<String> {
+    tag.strip_prefix("desktop-v")
+        .or_else(|| tag.strip_prefix('v'))
+        .map(|value| value.to_string())
+}
+
+fn version_parts(version: &str) -> Option<[u32; 3]> {
+    let core = version
+        .split_once('-')
+        .map(|value| value.0)
+        .unwrap_or(version);
+    let mut parts = core.split('.');
+    let major = parts.next()?.parse().ok()?;
+    let minor = parts.next()?.parse().ok()?;
+    let patch = parts.next()?.parse().ok()?;
+    if parts.next().is_some() {
+        return None;
+    }
+    Some([major, minor, patch])
+}
+
+fn is_newer_version(latest: &str, current: &str) -> bool {
+    let Some(latest_parts) = version_parts(latest) else {
+        return false;
+    };
+    let Some(current_parts) = version_parts(current) else {
+        return false;
+    };
+    latest_parts > current_parts
+}
+
+fn latest_desktop_release() -> Result<Option<GitHubRelease>> {
+    let client = reqwest::blocking::Client::builder()
+        .user_agent("HighLearning-Pet-Reminder")
+        .timeout(Duration::from_secs(8))
+        .build()?;
+    let text = client
+        .get("https://api.github.com/repos/techkwon/codex-characters/releases")
+        .send()?
+        .error_for_status()?
+        .text()?;
+    let releases: Vec<GitHubRelease> = serde_json::from_str(&text)?;
+    Ok(releases
+        .into_iter()
+        .find(|release| !release.draft && release.tag_name.starts_with("desktop-v")))
+}
+
 fn write_downloaded_pet(temp: &Path, url: &str) -> Result<PathBuf> {
     fs::create_dir_all(temp)?;
     let parsed = Url::parse(url).context("URL 형식이 올바르지 않습니다")?;
@@ -970,6 +1040,48 @@ fn recommended_pets() -> Vec<RecommendedPet> {
 }
 
 #[tauri::command]
+fn check_for_updates() -> Result<UpdateCheck, String> {
+    let current_version = env!("CARGO_PKG_VERSION").to_string();
+    let Some(release) = latest_desktop_release().map_err(|error| error.to_string())? else {
+        return Ok(UpdateCheck {
+            current_version,
+            latest_version: None,
+            latest_tag: None,
+            release_name: None,
+            release_url: None,
+            update_available: false,
+            prerelease: false,
+            message: "아직 공개된 desktop-v 릴리스가 없습니다.".to_string(),
+        });
+    };
+    let latest_version = parse_release_version(&release.tag_name);
+    let update_available = latest_version
+        .as_ref()
+        .map(|latest| is_newer_version(latest, &current_version))
+        .unwrap_or(false);
+    let message = match (&latest_version, update_available) {
+        (Some(latest), true) => format!("새 버전 {latest}을 사용할 수 있습니다."),
+        (Some(latest), false) => {
+            format!("현재 버전 {current_version}이 최신입니다. 최신 릴리스: {latest}")
+        }
+        (None, _) => format!(
+            "최신 릴리스 태그를 해석할 수 없습니다: {}",
+            release.tag_name
+        ),
+    };
+    Ok(UpdateCheck {
+        current_version,
+        latest_version,
+        latest_tag: Some(release.tag_name),
+        release_name: release.name,
+        release_url: Some(release.html_url),
+        update_available,
+        prerelease: release.prerelease,
+        message,
+    })
+}
+
+#[tauri::command]
 fn validate_pet_folder(path: String) -> PetValidation {
     validate_pet_dir(Path::new(&path))
 }
@@ -1172,6 +1284,7 @@ pub fn run() {
             save_app_data,
             list_builtin_pets,
             recommended_pets,
+            check_for_updates,
             validate_pet_folder,
             install_pet_from_folder,
             validate_pet_url,

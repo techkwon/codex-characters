@@ -133,6 +133,7 @@ Windows optional:
 - 데이터 관리: ZIP 백업 내보내기, ZIP 백업 가져오기, 지원용 진단 ZIP 내보내기, 앱 데이터 폴더 열기
 - 백업 복구: 루틴/설정/바로가기/설치한 펫이 복구되고 외부 펫 경로가 현재 앱 데이터 폴더 기준으로 재작성됨
 - 진단 ZIP: `diagnostics.json`, `state-redacted.json` 포함, 바로가기 대상 URL/파일 경로와 로컬 절대경로는 포함하지 않음
+- 업데이트 확인: 버튼을 눌렀을 때만 GitHub `desktop-v*` 릴리스를 확인하고 최신 버전/릴리스 페이지를 표시
 
 ## 5. 초경량 기준
 
@@ -186,6 +187,14 @@ Release:
 - Workflow: `.github/workflows/desktop-release.yml`
 - Trigger: `desktop-v*` tag push, manual `workflow_dispatch`
 - Publishes: GitHub Release with macOS and Windows installer/portable assets
+
+Update check:
+
+- 앱은 백그라운드 자동 다운로드를 하지 않음
+- 사용자가 `업데이트 확인`을 누를 때만 `techkwon/codex-characters` GitHub Releases를 조회
+- 대상 태그는 `desktop-vX.Y.Z` 형식
+- 새 버전이 있으면 릴리스 페이지를 열어 사용자가 직접 다운로드
+- 자동 설치 업데이트는 signed release와 updater key 준비 후 별도 단계로 전환
 
 ## 7. 사용자 데이터 관리
 
