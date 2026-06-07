@@ -344,9 +344,12 @@ function PetSprite({
 function QuickMenu({
   quickActions,
   sessionActive,
+  petSize,
   onStartFocus,
   onStopFocus,
   onQuickReminder,
+  onResizePet,
+  onStartMove,
   onShowRoutines,
   onShowPets,
   onShowImport,
@@ -355,9 +358,12 @@ function QuickMenu({
 }: {
   quickActions: QuickAction[];
   sessionActive: boolean;
+  petSize: number;
   onStartFocus: () => void;
   onStopFocus: () => void;
   onQuickReminder: () => void;
+  onResizePet: (delta: number) => void;
+  onStartMove: () => void;
   onShowRoutines: () => void;
   onShowPets: () => void;
   onShowImport: () => void;
@@ -365,7 +371,16 @@ function QuickMenu({
   onOpenQuickAction: (action: QuickAction) => void;
 }) {
   return (
-    <div className="quick-menu" onClick={(event) => event.stopPropagation()}>
+    <div className="quick-menu" onClick={(event) => event.stopPropagation()} onPointerDown={(event) => event.stopPropagation()}>
+      <div className="quick-menu-controls">
+        <button onPointerDown={onStartMove}>이동</button>
+        <button onClick={() => onResizePet(-20)} disabled={petSize <= 120}>
+          작게
+        </button>
+        <button onClick={() => onResizePet(20)} disabled={petSize >= 320}>
+          크게
+        </button>
+      </div>
       <button onClick={sessionActive ? onStopFocus : onStartFocus}>{sessionActive ? "집중 정지" : "집중 시작"}</button>
       <button onClick={onQuickReminder}>빠른 알림</button>
       <button onClick={onShowRoutines}>오늘 루틴</button>
@@ -394,6 +409,7 @@ function PetWindow({
   onStartFocus,
   onStopFocus,
   onQuickReminder,
+  onResizePet,
   onShowMain,
   onOpenQuickAction,
 }: {
@@ -409,6 +425,7 @@ function PetWindow({
   onStartFocus: () => void;
   onStopFocus: () => void;
   onQuickReminder: () => void;
+  onResizePet: (delta: number) => void;
   onShowMain: (section?: "routines" | "pets" | "import" | "settings") => void;
   onOpenQuickAction: (action: QuickAction) => void;
 }) {
@@ -429,6 +446,11 @@ function PetWindow({
 
   function isInteractiveTarget(target: EventTarget | null) {
     return target instanceof HTMLElement && Boolean(target.closest("button, input, textarea, select, a, .quick-menu"));
+  }
+
+  function startNativeMove() {
+    if (!isTauriRuntime()) return;
+    getCurrentWindow().startDragging().catch(() => undefined);
   }
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
@@ -484,6 +506,15 @@ function PetWindow({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >
+      <button
+        className="pet-move-handle"
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          startNativeMove();
+        }}
+      >
+        이동
+      </button>
       {settings.showPetStatus && (
         <div className="pet-bubble" data-tauri-drag-region>
           {statusText}
@@ -506,9 +537,12 @@ function PetWindow({
         <QuickMenu
           quickActions={quickActions}
           sessionActive={sessionActive}
+          petSize={settings.petSize}
           onStartFocus={onStartFocus}
           onStopFocus={onStopFocus}
           onQuickReminder={onQuickReminder}
+          onResizePet={onResizePet}
+          onStartMove={startNativeMove}
           onShowRoutines={() => onShowMain("routines")}
           onShowPets={() => onShowMain("pets")}
           onShowImport={() => onShowMain("import")}
@@ -665,10 +699,11 @@ function App() {
         menuOpen={quickMenuOpen}
         quickActions={data.settings.quickActions}
         sessionActive={Boolean(session)}
-        onToggleMenu={() => showMainSection("settings")}
+        onToggleMenu={() => setQuickMenuOpen((value) => !value)}
         onStartFocus={startFocus}
         onStopFocus={stopFocus}
         onQuickReminder={quickReminder}
+        onResizePet={resizePet}
         onShowMain={showMainSection}
         onOpenQuickAction={openQuickAction}
       />
@@ -686,6 +721,19 @@ function App() {
 
   function patchSettings(patch: Partial<AppSettings>) {
     setData((value) => ({ ...value, settings: { ...value.settings, ...patch } }));
+  }
+
+  function resizePet(delta: number) {
+    const current = dataRef.current;
+    const nextSize = Math.min(320, Math.max(120, current.settings.petSize + delta));
+    if (nextSize === current.settings.petSize) return;
+    const nextData = { ...current, settings: { ...current.settings, petSize: nextSize } };
+    dataRef.current = nextData;
+    setData(nextData);
+    call<void>("set_pet_window_size", { petSize: nextSize }).catch((error) => setStatus(String(error)));
+    if (isTauriRuntime() && windowLabel === "pet") {
+      call<void>("save_app_data", { data: nextData }).catch((error) => setStatus(String(error)));
+    }
   }
 
   function scrollToSection(section: "routines" | "pets" | "import" | "settings") {
@@ -953,9 +1001,12 @@ function App() {
             <QuickMenu
               quickActions={data.settings.quickActions}
               sessionActive={Boolean(session)}
+              petSize={data.settings.petSize}
               onStartFocus={startFocus}
               onStopFocus={stopFocus}
               onQuickReminder={quickReminder}
+              onResizePet={resizePet}
+              onStartMove={() => undefined}
               onShowRoutines={() => scrollToSection("routines")}
               onShowPets={() => scrollToSection("pets")}
               onShowImport={() => scrollToSection("import")}

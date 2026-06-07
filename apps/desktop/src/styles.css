@@ -218,6 +218,18 @@ h3 {
   text-align: left;
 }
 
+.quick-menu-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+}
+
+.quick-menu-controls button {
+  justify-content: center;
+  padding: 0 6px;
+  text-align: center;
+}
+
 .pet-list {
   display: grid;
   align-content: start;
@@ -527,6 +539,24 @@ small {
 }
 
 .pet-window:active {
+  cursor: grabbing;
+}
+
+.pet-move-handle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 15;
+  min-height: 26px;
+  border-color: rgba(29, 117, 97, 0.35);
+  background: rgba(255, 253, 250, 0.86);
+  color: #1d7561;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: grab;
+}
+
+.pet-move-handle:active {
   cursor: grabbing;
 }
 
