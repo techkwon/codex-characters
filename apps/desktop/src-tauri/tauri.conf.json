@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "HighLearning Pet Reminder",
+  "version": "0.1.0",
+  "identifier": "com.highlearning.petreminder",
+  "build": {
+    "beforeDevCommand": "npm run dev:ui",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build:ui",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "HighLearning Pet Reminder",
+        "width": 1120,
+        "height": 760,
+        "minWidth": 940,
+        "minHeight": 620,
+        "visible": true,
+        "resizable": true
+      },
+      {
+        "label": "pet",
+        "title": "Pet",
+        "width": 220,
+        "height": 240,
+        "visible": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg", "msi", "nsis"],
+    "category": "Productivity",
+    "shortDescription": "Lightweight study reminders with Codex-compatible pets.",
+    "longDescription": "HighLearning Pet Reminder is a lightweight local study routine reminder app using Codex-compatible animated pets."
+  }
+}
+

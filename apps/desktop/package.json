@@ -1,0 +1,30 @@
+{
+  "name": "highlearning-pet-reminder",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "dev:ui": "vite --host 127.0.0.1 --port 1420",
+    "build": "tauri build",
+    "build:ui": "tsc && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 1420",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.11.0",
+    "@tauri-apps/plugin-autostart": "2.5.1",
+    "@tauri-apps/plugin-dialog": "2.7.1",
+    "@tauri-apps/plugin-notification": "2.3.3",
+    "vite": "^7.2.6",
+    "typescript": "^5.9.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.2",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3"
+  }
+}
+
