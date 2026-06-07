@@ -52,6 +52,7 @@ function checkPackageScripts() {
   const requiredScripts = [
     "typecheck",
     "build:ui",
+    "smoke:preview",
     "build",
     "release:check",
     "signing:check",
@@ -125,6 +126,7 @@ function checkWorkflow(path, label) {
   assert(text.includes("windows-2025-vs2026"), `${label} pins Windows runner migration label`);
   assert(!text.includes("windows-latest"), `${label} avoids drifting windows-latest label`);
   assert(text.includes("npm run commercial:check"), `${label} runs commercial readiness gate`);
+  assert(text.includes("npm run smoke:preview"), `${label} runs preview smoke test`);
   assert(text.includes("npm run release:check"), `${label} runs release metadata gate`);
   assert(text.includes("npm run signing:check") || text.includes("check-signing-readiness.mjs"), `${label} runs signing readiness gate`);
 }
@@ -140,6 +142,7 @@ function checkWorkflows() {
 function checkReleaseChecklist() {
   const text = readText(paths.releaseChecklist);
   assert(text.includes("npm run commercial:check"), "Release checklist includes commercial readiness gate");
+  assert(text.includes("npm run smoke:preview"), "Release checklist includes preview smoke gate");
   assert(text.includes("Mac App Store 등록 제외"), "Release checklist keeps Mac App Store out of scope");
   assert(text.includes("GitHub Release"), "Release checklist covers GitHub Release distribution");
 }

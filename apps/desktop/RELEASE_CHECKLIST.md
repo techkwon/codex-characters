@@ -10,6 +10,7 @@ npm run release:check
 npm run signing:check
 npm run commercial:check
 npm run build:ui
+npm run smoke:preview
 cd src-tauri && cargo check
 cd ..
 npm run build
@@ -24,6 +25,7 @@ npm run release:check
 npm run signing:check
 npm run commercial:check
 npm run build:ui
+npm run smoke:preview
 cd src-tauri
 cargo check
 cd ..
@@ -37,6 +39,7 @@ npm run package:portable:win
 - `package.json`, `package-lock.json`, `Cargo.toml`, `tauri.conf.json` 버전 일치
 - signing readiness 출력에서 unsigned build 상태와 누락 secret을 확인
 - commercial readiness가 CSP, asset protocol, 내장 펫, workflow action/runtime, runner label을 통과
+- preview smoke가 정적 shell, JS/CSS bundle, 내장 펫 manifest/spritesheet, 핵심 UI 문구를 통과
 - Rust `cargo check` 오류 없음
 - macOS `.app`, `.dmg`, portable `.zip` 생성
 - Windows `msi`, `nsis`, portable `.zip` 생성

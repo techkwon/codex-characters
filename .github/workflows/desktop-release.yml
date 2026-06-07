@@ -87,6 +87,14 @@ jobs:
         working-directory: apps/desktop
         run: npm run commercial:check
 
+      - name: Build UI
+        working-directory: apps/desktop
+        run: npm run build:ui
+
+      - name: Smoke preview UI
+        working-directory: apps/desktop
+        run: npm run smoke:preview
+
       - name: Check Rust
         working-directory: apps/desktop/src-tauri
         run: cargo check
