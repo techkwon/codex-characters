@@ -52,6 +52,26 @@ npm run release:prepare -- 0.1.1
 - 버전 변경 후 `npm run release:check` 통과
 - 릴리스 커밋은 Lore protocol 형식으로 작성
 - 배포 태그는 `desktop-vX.Y.Z` 형식을 사용
+- 태그를 푸시하면 `Desktop Release` workflow가 macOS/Windows 산출물을 빌드하고 GitHub Release를 생성함
+
+릴리스 발행:
+
+```bash
+git tag desktop-v0.1.1
+git push origin desktop-v0.1.1
+```
+
+수동 재발행:
+
+```bash
+gh workflow run "Desktop Release" --repo techkwon/codex-characters -f tag=desktop-v0.1.1
+```
+
+릴리스 확인:
+
+- GitHub Release 제목이 `HighLearning Pet Reminder X.Y.Z` 형식
+- Release body가 `apps/desktop/RELEASE_NOTES.md` 내용과 일치
+- 첨부 파일에 macOS `.dmg`, macOS portable `.zip`, Windows `.msi`, Windows NSIS `.exe`, Windows portable `.zip` 포함
 
 ## 3. 기능 회귀 확인
 
@@ -112,6 +132,12 @@ CI:
 - Workflow: `.github/workflows/desktop-build.yml`
 - Trigger: `main` push, pull request, manual `workflow_dispatch`
 - Artifacts: `highlearning-pet-reminder-macos-arm64`, `highlearning-pet-reminder-windows-x64`
+
+Release:
+
+- Workflow: `.github/workflows/desktop-release.yml`
+- Trigger: `desktop-v*` tag push, manual `workflow_dispatch`
+- Publishes: GitHub Release with macOS and Windows installer/portable assets
 
 ## 6. 사용자 데이터 관리
 
