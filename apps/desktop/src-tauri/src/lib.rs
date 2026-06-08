@@ -240,7 +240,7 @@ fn default_routine_start_time() -> String {
 }
 
 fn default_pet_size() -> u32 {
-    150
+    140
 }
 
 fn default_settings() -> AppSettings {
@@ -856,11 +856,11 @@ fn find_file(root: &Path, name: &str) -> Option<PathBuf> {
 #[tauri::command]
 fn load_app_data(app: AppHandle) -> Result<AppData, String> {
     let mut data = load_state_inner(&app).map_err(|error| error.to_string())?;
-    let should_migrate_pet_layout = data.settings.pet_layout_version < 1;
+    let should_migrate_pet_layout = data.settings.pet_layout_version < 2;
     data.settings.pet_window_enabled = true;
     if should_migrate_pet_layout {
         data.settings.pet_size = default_pet_size();
-        data.settings.pet_layout_version = 1;
+        data.settings.pet_layout_version = 2;
     }
     data.settings.pet_size = data.settings.pet_size.clamp(120, 320);
     if should_migrate_pet_layout {
@@ -1202,11 +1202,11 @@ fn set_pet_window_size(
     let pet_size = pet_size.clamp(120, 320);
     if let Some(window) = app.get_webview_window("pet") {
         let menu_open = menu_open.unwrap_or(false);
-        let width = (pet_size + if menu_open { 300 } else { 70 }) as f64;
+        let width = (pet_size + if menu_open { 300 } else { 38 }) as f64;
         let height = if menu_open {
-            (((pet_size as f64 * 1.16) + 300.0).round()).max(500.0)
+            (((pet_size as f64 * 1.083) + 300.0).round()).max(500.0)
         } else {
-            ((pet_size as f64 * 1.16) + 90.0).round()
+            ((pet_size as f64 * 1.083) + 70.0).round()
         };
         let old_position = window.outer_position().ok();
         let old_size = window.outer_size().ok();
@@ -1224,9 +1224,10 @@ fn set_pet_window_size(
                 let monitor_size = monitor.size();
                 let min_x = monitor_position.x;
                 let min_y = monitor_position.y;
-                let max_x = monitor_position.x + monitor_size.width as i32 - next_width;
-                let max_x = max_x - (48.0 * scale_factor).round() as i32;
-                let menu_margin = if menu_open { 36.0 } else { 140.0 };
+                let max_x = monitor_position.x + monitor_size.width as i32
+                    - next_width
+                    - ((if menu_open { 48.0 } else { 18.0 }) * scale_factor).round() as i32;
+                let menu_margin = if menu_open { 36.0 } else { 92.0 };
                 let max_y = monitor_position.y + monitor_size.height as i32
                     - next_height
                     - (menu_margin * scale_factor).round() as i32;
@@ -1330,8 +1331,8 @@ fn quit_app(app: AppHandle) {
 fn place_pet_window_bottom_right(app: AppHandle, pet_size: u32) -> Result<(), String> {
     let pet_size = pet_size.clamp(120, 320);
     if let Some(window) = app.get_webview_window("pet") {
-        let width = pet_size + 70;
-        let height = ((pet_size as f64 * 1.16) + 90.0).round() as u32;
+        let width = pet_size + 38;
+        let height = ((pet_size as f64 * 1.083) + 70.0).round() as u32;
         window
             .set_size(Size::Logical(LogicalSize::new(width as f64, height as f64)))
             .map_err(|error| error.to_string())?;
@@ -1345,9 +1346,9 @@ fn place_pet_window_bottom_right(app: AppHandle, pet_size: u32) -> Result<(), St
             let logical_width = monitor_size.width as f64 / scale_factor;
             let logical_height = monitor_size.height as f64 / scale_factor;
             let logical_x =
-                monitor_position.x as f64 / scale_factor + logical_width - width as f64 - 72.0;
+                monitor_position.x as f64 / scale_factor + logical_width - width as f64 - 18.0;
             let logical_y =
-                monitor_position.y as f64 / scale_factor + logical_height - height as f64 - 156.0;
+                monitor_position.y as f64 / scale_factor + logical_height - height as f64 - 92.0;
             window
                 .set_position(Position::Logical(LogicalPosition::new(
                     logical_x.max(0.0),

@@ -149,11 +149,11 @@ const fallbackData: AppData = {
     autostartEnabled: false,
     resourceMonitorEnabled: true,
     batteryMonitorEnabled: true,
-    petSize: 150,
+    petSize: 140,
     showPetStatus: true,
     showPetResource: true,
     showPetTimer: true,
-    petLayoutVersion: 1,
+    petLayoutVersion: 2,
     quickActions: defaultQuickActions,
   },
   routines: [
@@ -526,10 +526,13 @@ function PetWindow({
     y: number;
     windowX: number | null;
     windowY: number | null;
+    scaleFactor: number;
     pointerId: number;
     moved: boolean;
     startedAt: number;
   } | null>(null);
+  const dragFrame = useRef<number | null>(null);
+  const pendingDrag = useRef<{ startX: number; startY: number; dx: number; dy: number } | null>(null);
   const resizeStart = useRef<{ x: number; y: number; size: number; pointerId: number } | null>(null);
   const suppressNextClick = useRef(false);
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
@@ -550,11 +553,13 @@ function PetWindow({
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
     if (isInteractiveTarget(event.target)) return;
     event.preventDefault();
+    pendingDrag.current = null;
     dragStart.current = {
       x: event.screenX,
       y: event.screenY,
       windowX: null,
       windowY: null,
+      scaleFactor: 1,
       pointerId: event.pointerId,
       moved: false,
       startedAt: performance.now(),
@@ -562,13 +567,13 @@ function PetWindow({
     event.currentTarget.setPointerCapture(event.pointerId);
     if (!isTauriRuntime()) return;
     const appWindow = getCurrentWindow();
-    appWindow
-      .outerPosition()
-      .then((position) => {
+    Promise.all([appWindow.outerPosition(), appWindow.scaleFactor()])
+      .then(([position, scaleFactor]) => {
         const current = dragStart.current;
         if (!current || current.pointerId !== event.pointerId) return;
         current.windowX = position.x;
         current.windowY = position.y;
+        current.scaleFactor = scaleFactor;
       })
       .catch(() => undefined);
   }
@@ -580,18 +585,32 @@ function PetWindow({
     const dy = event.screenY - start.y;
     if (Math.hypot(dx, dy) >= 4) start.moved = true;
     if (!isTauriRuntime() || start.windowX == null || start.windowY == null) return;
-    call<void>("drag_pet_window_to", {
+    pendingDrag.current = {
       startX: start.windowX,
       startY: start.windowY,
-      dx: Math.round(dx),
-      dy: Math.round(dy),
-    }).catch(() => undefined);
+      dx: Math.round(dx * start.scaleFactor),
+      dy: Math.round(dy * start.scaleFactor),
+    };
+    if (dragFrame.current != null) return;
+    dragFrame.current = window.requestAnimationFrame(() => {
+      dragFrame.current = null;
+      const next = pendingDrag.current;
+      if (!next) return;
+      call<void>("drag_pet_window_to", next).catch(() => undefined);
+    });
   }
 
   function handlePointerUp(event: PointerEvent<HTMLElement>) {
     if (isInteractiveTarget(event.target)) return;
     const start = dragStart.current;
     dragStart.current = null;
+    if (dragFrame.current != null) {
+      window.cancelAnimationFrame(dragFrame.current);
+      dragFrame.current = null;
+    }
+    const finalDrag = pendingDrag.current;
+    pendingDrag.current = null;
+    if (finalDrag) call<void>("drag_pet_window_to", finalDrag).catch(() => undefined);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }

@@ -189,7 +189,8 @@ function checkStandalonePetExperience() {
   assert(appRust.includes("fn quit_app"), "backend exposes app quit command");
   assert(appTsx.includes("place_pet_window_bottom_right"), "standalone pet defaults to the lower-right screen position");
   assert(appTsx.includes("petSize"), "settings expose pet size control");
-  assert(appTsx.includes("petSize: 150"), "standalone pet default size is compact");
+  assert(appTsx.includes("petSize: 140"), "standalone pet default size is compact");
+  assert(appTsx.includes("scaleFactor"), "standalone pet drag tracks Retina display movement");
   assert(appTsx.includes("petLayoutVersion"), "settings track pet layout migration version");
   assert(appTsx.includes("showPetStatus"), "settings expose pet status bubble visibility");
   assert(appTsx.includes("showPetResource"), "settings expose pet resource info visibility");
@@ -197,9 +198,10 @@ function checkStandalonePetExperience() {
   assert(appTsx.includes("petStatusText"), "pet shows Codex-style situational status text");
   assert(appTsx.includes("animationSpeed(resource)"), "pet animation speed is linked to resource pressure");
   assert(appRust.includes("set_pet_window_size"), "backend exposes pet window size command");
-  assert(/fn\s+default_pet_size\(\)\s*->\s*u32\s*\{\s*150\s*\}/.test(appRust), "backend default pet size is compact");
+  assert(/fn\s+default_pet_size\(\)\s*->\s*u32\s*\{\s*140\s*\}/.test(appRust), "backend default pet size is compact");
   assert(appRust.includes("pet_layout_version"), "backend migrates old pet layout defaults once");
-  assert(appRust.includes("156.0"), "backend lower-right placement leaves room above the Dock/taskbar");
+  assert(appRust.includes("18.0"), "backend lower-right placement stays close to the screen edge");
+  assert(appRust.includes("92.0"), "backend lower-right placement leaves room above the Dock/taskbar");
   assert(appRust.includes("move_pet_window"), "backend exposes pet move command");
   assert(appRust.includes("place_pet_window_bottom_right"), "backend exposes lower-right placement command");
   assert(appRust.includes("pet_size: u32"), "settings persist pet size");
