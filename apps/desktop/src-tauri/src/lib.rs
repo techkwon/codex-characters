@@ -7,6 +7,7 @@ use std::{
     fs::{self, File},
     io::{Cursor, Read, Write},
     path::{Path, PathBuf},
+    process::Command,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -1193,7 +1194,11 @@ fn show_main_section(app: AppHandle, section: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn set_pet_window_size(app: AppHandle, pet_size: u32, menu_open: Option<bool>) -> Result<(), String> {
+fn set_pet_window_size(
+    app: AppHandle,
+    pet_size: u32,
+    menu_open: Option<bool>,
+) -> Result<(), String> {
     let pet_size = pet_size.clamp(120, 320);
     if let Some(window) = app.get_webview_window("pet") {
         let menu_open = menu_open.unwrap_or(false);
@@ -1212,10 +1217,23 @@ fn set_pet_window_size(app: AppHandle, pet_size: u32, menu_open: Option<bool>) -
         if let (Some(position), Some(size)) = (old_position, old_size) {
             let next_width = (width * scale_factor).round() as i32;
             let next_height = (height * scale_factor).round() as i32;
+            let mut next_x = position.x + size.width as i32 - next_width;
+            let mut next_y = position.y + size.height as i32 - next_height;
+            if let Ok(Some(monitor)) = window.current_monitor() {
+                let monitor_position = monitor.position();
+                let monitor_size = monitor.size();
+                let min_x = monitor_position.x;
+                let min_y = monitor_position.y;
+                let max_x = monitor_position.x + monitor_size.width as i32 - next_width;
+                let max_x = max_x - (48.0 * scale_factor).round() as i32;
+                let max_y = monitor_position.y + monitor_size.height as i32
+                    - next_height
+                    - (140.0 * scale_factor).round() as i32;
+                next_x = next_x.clamp(min_x, max_x.max(min_x));
+                next_y = next_y.clamp(min_y, max_y.max(min_y));
+            }
             window
-                .set_position(Position::Physical(
-                    (position.x + size.width as i32 - next_width, position.y + size.height as i32 - next_height).into(),
-                ))
+                .set_position(Position::Physical((next_x, next_y).into()))
                 .map_err(|error| error.to_string())?;
         }
     }
@@ -1227,10 +1245,79 @@ fn move_pet_window(app: AppHandle, dx: i32, dy: i32) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("pet") {
         let position = window.outer_position().map_err(|error| error.to_string())?;
         window
-            .set_position(Position::Physical((position.x + dx, position.y + dy).into()))
+            .set_position(Position::Physical(
+                (position.x + dx, position.y + dy).into(),
+            ))
             .map_err(|error| error.to_string())?;
     }
     Ok(())
+}
+
+#[tauri::command]
+fn drag_pet_window_to(
+    app: AppHandle,
+    start_x: i32,
+    start_y: i32,
+    dx: i32,
+    dy: i32,
+) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("pet") {
+        window
+            .set_position(Position::Physical((start_x + dx, start_y + dy).into()))
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn open_macos_app(app_name: &str, app_path: &str) -> Result<(), String> {
+    match Command::new("open").arg(app_path).spawn() {
+        Ok(_) => Ok(()),
+        Err(path_error) => Command::new("open")
+            .args(["-a", app_name])
+            .spawn()
+            .map(|_| ())
+            .map_err(|app_error| format!("{path_error}; fallback failed: {app_error}")),
+    }
+}
+
+#[tauri::command]
+fn open_system_shortcut(kind: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        let (app_name, app_path) = match kind.as_str() {
+            "screenshot" => (
+                "Screenshot",
+                "/System/Applications/Utilities/Screenshot.app",
+            ),
+            "calculator" => ("Calculator", "/System/Applications/Calculator.app"),
+            "notes" => ("Notes", "/System/Applications/Notes.app"),
+            "weather" => ("Weather", "/System/Applications/Weather.app"),
+            _ => return Err(format!("unknown system shortcut: {kind}")),
+        };
+        return open_macos_app(app_name, app_path);
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        let target = match kind.as_str() {
+            "screenshot" => "ms-screenclip:",
+            "calculator" => "calc.exe",
+            "notes" => "notepad.exe",
+            "weather" => "msnweather:",
+            _ => return Err(format!("unknown system shortcut: {kind}")),
+        };
+        Command::new("cmd")
+            .args(["/C", "start", "", target])
+            .spawn()
+            .map_err(|error| error.to_string())?;
+        return Ok(());
+    }
+
+    #[allow(unreachable_code)]
+    Err(format!(
+        "system shortcut is not supported on this platform: {kind}"
+    ))
 }
 
 #[tauri::command]
@@ -1242,16 +1329,24 @@ fn place_pet_window_bottom_right(app: AppHandle, pet_size: u32) -> Result<(), St
         window
             .set_size(Size::Logical(LogicalSize::new(width as f64, height as f64)))
             .map_err(|error| error.to_string())?;
-        if let Some(monitor) = window.current_monitor().map_err(|error| error.to_string())? {
+        if let Some(monitor) = window
+            .current_monitor()
+            .map_err(|error| error.to_string())?
+        {
             let monitor_position = monitor.position();
             let monitor_size = monitor.size();
             let scale_factor = monitor.scale_factor();
             let logical_width = monitor_size.width as f64 / scale_factor;
             let logical_height = monitor_size.height as f64 / scale_factor;
-            let logical_x = monitor_position.x as f64 / scale_factor + logical_width - width as f64 - 24.0;
-            let logical_y = monitor_position.y as f64 / scale_factor + logical_height - height as f64 - 116.0;
+            let logical_x =
+                monitor_position.x as f64 / scale_factor + logical_width - width as f64 - 72.0;
+            let logical_y =
+                monitor_position.y as f64 / scale_factor + logical_height - height as f64 - 156.0;
             window
-                .set_position(Position::Logical(LogicalPosition::new(logical_x.max(0.0), logical_y.max(0.0))))
+                .set_position(Position::Logical(LogicalPosition::new(
+                    logical_x.max(0.0),
+                    logical_y.max(0.0),
+                )))
                 .map_err(|error| error.to_string())?;
         }
     }
@@ -1415,6 +1510,8 @@ pub fn run() {
             show_main_section,
             set_pet_window_size,
             move_pet_window,
+            drag_pet_window_to,
+            open_system_shortcut,
             place_pet_window_bottom_right,
             set_resource_monitor_settings,
             app_data_location,

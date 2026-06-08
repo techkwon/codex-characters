@@ -168,7 +168,10 @@ function checkStandalonePetExperience() {
   const appRust = readText(paths.appRust);
   const styles = readText(paths.styles);
 
-  assert(appTsx.includes("PhysicalPosition"), "standalone pet can be dragged from the character surface");
+  assert(appTsx.includes("drag_pet_window_to"), "standalone pet can be dragged from the character surface");
+  assert(appRust.includes("fn drag_pet_window_to"), "backend exposes deterministic pet drag command");
+  assert(appTsx.includes("open_system_shortcut"), "standalone pet system shortcuts use backend launcher");
+  assert(appRust.includes("fn open_system_shortcut"), "backend exposes system shortcut launcher");
   assert(appTsx.includes("startDragging"), "standalone pet keeps native drag fallback movement");
   assert(appTsx.includes("move_pet_window"), "standalone pet keeps menu-based move fallback controls");
   assert(!appTsx.includes("pet-direct-controls"), "standalone pet does not show always-visible movement controls");
@@ -190,7 +193,7 @@ function checkStandalonePetExperience() {
   assert(appRust.includes("set_pet_window_size"), "backend exposes pet window size command");
   assert(/fn\s+default_pet_size\(\)\s*->\s*u32\s*\{\s*150\s*\}/.test(appRust), "backend default pet size is compact");
   assert(appRust.includes("pet_layout_version"), "backend migrates old pet layout defaults once");
-  assert(appRust.includes("116.0"), "backend lower-right placement leaves room above the Dock/taskbar");
+  assert(appRust.includes("156.0"), "backend lower-right placement leaves room above the Dock/taskbar");
   assert(appRust.includes("move_pet_window"), "backend exposes pet move command");
   assert(appRust.includes("place_pet_window_bottom_right"), "backend exposes lower-right placement command");
   assert(appRust.includes("pet_size: u32"), "settings persist pet size");

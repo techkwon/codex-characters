@@ -8,7 +8,7 @@ import {
   requestPermission,
   sendNotification,
 } from "@tauri-apps/plugin-notification";
-import { getCurrentWindow, PhysicalPosition } from "@tauri-apps/api/window";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 type PetSummary = {
   id: string;
@@ -288,10 +288,6 @@ function isUrlTarget(target: string) {
   return /^(https?:|mailto:|tel:)/i.test(target.trim());
 }
 
-function isMacPlatform() {
-  return /mac/i.test(navigator.platform);
-}
-
 function resourceLevel(resource: ResourceSnapshot | null) {
   if (!resource) return "대기";
   const pressure = Math.max(resource.cpuPercent, resource.memoryPercent);
@@ -494,7 +490,6 @@ function PetWindow({
     y: number;
     windowX: number | null;
     windowY: number | null;
-    scaleFactor: number;
     pointerId: number;
     moved: boolean;
     startedAt: number;
@@ -523,7 +518,6 @@ function PetWindow({
       y: event.screenY,
       windowX: null,
       windowY: null,
-      scaleFactor: 1,
       pointerId: event.pointerId,
       moved: false,
       startedAt: performance.now(),
@@ -531,13 +525,13 @@ function PetWindow({
     event.currentTarget.setPointerCapture(event.pointerId);
     if (!isTauriRuntime()) return;
     const appWindow = getCurrentWindow();
-    Promise.all([appWindow.outerPosition(), appWindow.scaleFactor()])
-      .then(([position, scaleFactor]) => {
+    appWindow
+      .outerPosition()
+      .then((position) => {
         const current = dragStart.current;
         if (!current || current.pointerId !== event.pointerId) return;
         current.windowX = position.x;
         current.windowY = position.y;
-        current.scaleFactor = scaleFactor;
       })
       .catch(() => undefined);
   }
@@ -549,9 +543,12 @@ function PetWindow({
     const dy = event.screenY - start.y;
     if (Math.hypot(dx, dy) >= 4) start.moved = true;
     if (!isTauriRuntime() || start.windowX == null || start.windowY == null) return;
-    const nextX = Math.round(start.windowX + dx * start.scaleFactor);
-    const nextY = Math.round(start.windowY + dy * start.scaleFactor);
-    getCurrentWindow().setPosition(new PhysicalPosition(nextX, nextY)).catch(() => undefined);
+    call<void>("drag_pet_window_to", {
+      startX: start.windowX,
+      startY: start.windowY,
+      dx: Math.round(dx),
+      dy: Math.round(dy),
+    }).catch(() => undefined);
   }
 
   function handlePointerUp(event: PointerEvent<HTMLElement>) {
@@ -949,17 +946,13 @@ function App() {
       return;
     }
     if (target === "system:screenshot") {
-      if (isMacPlatform()) await openPath("/System/Applications/Utilities/Screenshot.app");
-      else await openUrl("ms-screenclip:");
+      await call<void>("open_system_shortcut", { kind: "screenshot" });
     } else if (target === "system:calculator") {
-      if (isMacPlatform()) await openPath("/System/Applications/Calculator.app");
-      else await openUrl("calculator:");
+      await call<void>("open_system_shortcut", { kind: "calculator" });
     } else if (target === "system:notes") {
-      if (isMacPlatform()) await openPath("/System/Applications/Notes.app");
-      else await openPath("notepad.exe");
+      await call<void>("open_system_shortcut", { kind: "notes" });
     } else if (target === "system:weather") {
-      if (isMacPlatform()) await openPath("/System/Applications/Weather.app");
-      else await openUrl("msnweather:");
+      await call<void>("open_system_shortcut", { kind: "weather" });
     } else if (isUrlTarget(target)) {
       await openUrl(target);
     } else {
