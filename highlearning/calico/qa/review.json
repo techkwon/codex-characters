@@ -1,0 +1,962 @@
+{
+  "ok": true,
+  "frames_root": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames",
+  "errors": [],
+  "warnings": [],
+  "rows": [
+    {
+      "state": "idle",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/idle/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20964,
+          "bbox": [
+            25,
+            5,
+            166,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 202
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/idle/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21335,
+          "bbox": [
+            24,
+            5,
+            168,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 194
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/idle/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21108,
+          "bbox": [
+            26,
+            5,
+            166,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 241
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/idle/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21203,
+          "bbox": [
+            26,
+            5,
+            166,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 162
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/idle/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20921,
+          "bbox": [
+            26,
+            5,
+            165,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 175
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/idle/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20900,
+          "bbox": [
+            27,
+            5,
+            165,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 162
+        }
+      ]
+    },
+    {
+      "state": "running-right",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20392,
+          "bbox": [
+            5,
+            22,
+            187,
+            186
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 393
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17910,
+          "bbox": [
+            5,
+            34,
+            187,
+            174
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 297
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17480,
+          "bbox": [
+            5,
+            31,
+            187,
+            176
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 267
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21589,
+          "bbox": [
+            5,
+            19,
+            187,
+            189
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 379
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19611,
+          "bbox": [
+            5,
+            24,
+            187,
+            184
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 320
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19286,
+          "bbox": [
+            5,
+            26,
+            187,
+            182
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 330
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17883,
+          "bbox": [
+            5,
+            32,
+            187,
+            175
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 391
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-right/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17657,
+          "bbox": [
+            5,
+            33,
+            187,
+            175
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 334
+        }
+      ]
+    },
+    {
+      "state": "running-left",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17881,
+          "bbox": [
+            5,
+            25,
+            187,
+            182
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 389
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17482,
+          "bbox": [
+            5,
+            27,
+            187,
+            180
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 388
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16274,
+          "bbox": [
+            5,
+            34,
+            187,
+            173
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 319
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 15954,
+          "bbox": [
+            5,
+            35,
+            187,
+            173
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 289
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18122,
+          "bbox": [
+            5,
+            23,
+            187,
+            184
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 406
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19421,
+          "bbox": [
+            5,
+            20,
+            187,
+            187
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 416
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18760,
+          "bbox": [
+            5,
+            25,
+            187,
+            182
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 444
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running-left/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17931,
+          "bbox": [
+            5,
+            27,
+            187,
+            180
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 415
+        }
+      ]
+    },
+    {
+      "state": "waving",
+      "expected_frames": 4,
+      "actual_frames": 4,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waving/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20991,
+          "bbox": [
+            24,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 112
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waving/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22389,
+          "bbox": [
+            22,
+            5,
+            169,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 101
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waving/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22672,
+          "bbox": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 119
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waving/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21390,
+          "bbox": [
+            24,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 97
+        }
+      ]
+    },
+    {
+      "state": "jumping",
+      "expected_frames": 5,
+      "actual_frames": 5,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/jumping/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21899,
+          "bbox": [
+            5,
+            20,
+            187,
+            188
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 259
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/jumping/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19623,
+          "bbox": [
+            21,
+            5,
+            170,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 214
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/jumping/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17983,
+          "bbox": [
+            25,
+            5,
+            166,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 108
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/jumping/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19861,
+          "bbox": [
+            23,
+            5,
+            168,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 253
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/jumping/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21855,
+          "bbox": [
+            5,
+            20,
+            187,
+            187
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 269
+        }
+      ]
+    },
+    {
+      "state": "failed",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22719,
+          "bbox": [
+            22,
+            5,
+            169,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 248
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22809,
+          "bbox": [
+            18,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 207
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23887,
+          "bbox": [
+            16,
+            5,
+            175,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 290
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23963,
+          "bbox": [
+            5,
+            13,
+            187,
+            195
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 224
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19179,
+          "bbox": [
+            5,
+            38,
+            187,
+            169
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 169
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25913,
+          "bbox": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 275
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21714,
+          "bbox": [
+            17,
+            5,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 262
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/failed/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21871,
+          "bbox": [
+            22,
+            5,
+            170,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 193
+        }
+      ]
+    },
+    {
+      "state": "waiting",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waiting/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19920,
+          "bbox": [
+            28,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 243
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waiting/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19948,
+          "bbox": [
+            28,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 238
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waiting/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18470,
+          "bbox": [
+            25,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 239
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waiting/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20263,
+          "bbox": [
+            29,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 238
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waiting/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21008,
+          "bbox": [
+            23,
+            5,
+            169,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 255
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/waiting/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19630,
+          "bbox": [
+            29,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 223
+        }
+      ]
+    },
+    {
+      "state": "running",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18168,
+          "bbox": [
+            5,
+            27,
+            187,
+            180
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 197
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17911,
+          "bbox": [
+            5,
+            31,
+            187,
+            177
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 188
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16543,
+          "bbox": [
+            5,
+            36,
+            187,
+            172
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 217
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16455,
+          "bbox": [
+            5,
+            29,
+            187,
+            179
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 220
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16715,
+          "bbox": [
+            5,
+            32,
+            187,
+            175
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 183
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/running/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19681,
+          "bbox": [
+            5,
+            20,
+            187,
+            187
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 252
+        }
+      ]
+    },
+    {
+      "state": "review",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/review/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21153,
+          "bbox": [
+            25,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 145
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/review/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 26117,
+          "bbox": [
+            13,
+            5,
+            179,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 298
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/review/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18979,
+          "bbox": [
+            20,
+            5,
+            171,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 149
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/review/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23204,
+          "bbox": [
+            25,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 166
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/review/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18544,
+          "bbox": [
+            18,
+            5,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 174
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/calico/frames/review/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21267,
+          "bbox": [
+            24,
+            5,
+            168,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 182
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,962 @@
+{
+  "ok": true,
+  "frames_root": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames",
+  "errors": [],
+  "warnings": [],
+  "rows": [
+    {
+      "state": "idle",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/idle/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22411,
+          "bbox": [
+            19,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 180
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/idle/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22411,
+          "bbox": [
+            19,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 187
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/idle/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22368,
+          "bbox": [
+            19,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 209
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/idle/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22229,
+          "bbox": [
+            20,
+            5,
+            172,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 176
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/idle/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22293,
+          "bbox": [
+            19,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 179
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/idle/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22328,
+          "bbox": [
+            18,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 181
+        }
+      ]
+    },
+    {
+      "state": "running-right",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24148,
+          "bbox": [
+            6,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 326
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18110,
+          "bbox": [
+            5,
+            30,
+            187,
+            178
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 239
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23659,
+          "bbox": [
+            7,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 338
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21793,
+          "bbox": [
+            5,
+            12,
+            187,
+            196
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 289
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21071,
+          "bbox": [
+            5,
+            16,
+            187,
+            192
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 284
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21140,
+          "bbox": [
+            5,
+            17,
+            187,
+            190
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 322
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23085,
+          "bbox": [
+            5,
+            18,
+            187,
+            189
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 290
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-right/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24337,
+          "bbox": [
+            5,
+            9,
+            187,
+            199
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 344
+        }
+      ]
+    },
+    {
+      "state": "running-left",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21952,
+          "bbox": [
+            5,
+            12,
+            187,
+            195
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 264
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18296,
+          "bbox": [
+            5,
+            26,
+            187,
+            182
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 285
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22006,
+          "bbox": [
+            5,
+            8,
+            187,
+            200
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 278
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22810,
+          "bbox": [
+            5,
+            12,
+            187,
+            196
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 350
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17358,
+          "bbox": [
+            5,
+            30,
+            187,
+            177
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 260
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22191,
+          "bbox": [
+            5,
+            10,
+            187,
+            197
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 352
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21332,
+          "bbox": [
+            5,
+            18,
+            187,
+            190
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 277
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running-left/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24233,
+          "bbox": [
+            5,
+            9,
+            187,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 379
+        }
+      ]
+    },
+    {
+      "state": "waving",
+      "expected_frames": 4,
+      "actual_frames": 4,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waving/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23202,
+          "bbox": [
+            16,
+            5,
+            175,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 137
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waving/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23944,
+          "bbox": [
+            13,
+            5,
+            178,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 123
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waving/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23275,
+          "bbox": [
+            13,
+            5,
+            179,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 162
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waving/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22878,
+          "bbox": [
+            17,
+            5,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 158
+        }
+      ]
+    },
+    {
+      "state": "jumping",
+      "expected_frames": 5,
+      "actual_frames": 5,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/jumping/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19855,
+          "bbox": [
+            5,
+            29,
+            187,
+            179
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 168
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/jumping/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20146,
+          "bbox": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 188
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/jumping/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22528,
+          "bbox": [
+            6,
+            5,
+            186,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 243
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/jumping/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22518,
+          "bbox": [
+            5,
+            5,
+            186,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 176
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/jumping/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25818,
+          "bbox": [
+            6,
+            5,
+            185,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 222
+        }
+      ]
+    },
+    {
+      "state": "failed",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20856,
+          "bbox": [
+            24,
+            5,
+            168,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 211
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22597,
+          "bbox": [
+            20,
+            5,
+            172,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 274
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24397,
+          "bbox": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 281
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 26000,
+          "bbox": [
+            8,
+            5,
+            183,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 320
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21236,
+          "bbox": [
+            5,
+            31,
+            187,
+            176
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 254
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 25430,
+          "bbox": [
+            5,
+            5,
+            187,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 373
+        },
+        {
+          "index": 6,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23259,
+          "bbox": [
+            15,
+            5,
+            177,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 279
+        },
+        {
+          "index": 7,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/failed/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20658,
+          "bbox": [
+            24,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 220
+        }
+      ]
+    },
+    {
+      "state": "waiting",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waiting/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22149,
+          "bbox": [
+            20,
+            5,
+            171,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 158
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waiting/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22023,
+          "bbox": [
+            16,
+            5,
+            176,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 166
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waiting/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22788,
+          "bbox": [
+            19,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 158
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waiting/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22034,
+          "bbox": [
+            22,
+            5,
+            170,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 189
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waiting/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21950,
+          "bbox": [
+            20,
+            5,
+            171,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 165
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/waiting/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22779,
+          "bbox": [
+            17,
+            5,
+            175,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 183
+        }
+      ]
+    },
+    {
+      "state": "running",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23081,
+          "bbox": [
+            5,
+            13,
+            187,
+            195
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 269
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21148,
+          "bbox": [
+            5,
+            16,
+            187,
+            191
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 217
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22562,
+          "bbox": [
+            5,
+            19,
+            187,
+            189
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 192
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20909,
+          "bbox": [
+            5,
+            22,
+            187,
+            185
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 240
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19716,
+          "bbox": [
+            5,
+            27,
+            187,
+            181
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 190
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/running/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21765,
+          "bbox": [
+            5,
+            20,
+            187,
+            188
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 229
+        }
+      ]
+    },
+    {
+      "state": "review",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/review/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22357,
+          "bbox": [
+            18,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 208
+        },
+        {
+          "index": 1,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/review/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21926,
+          "bbox": [
+            16,
+            5,
+            175,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 192
+        },
+        {
+          "index": 2,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/review/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22566,
+          "bbox": [
+            18,
+            5,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 207
+        },
+        {
+          "index": 3,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/review/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 24902,
+          "bbox": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 225
+        },
+        {
+          "index": 4,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/review/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21948,
+          "bbox": [
+            25,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 272
+        },
+        {
+          "index": 5,
+          "file": "/Users/techkwon/Downloads/codex-characters/.hatch-runs/max/frames/review/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 22496,
+          "bbox": [
+            18,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 233
+        }
+      ]
+    }
+  ]
+}
