@@ -181,6 +181,12 @@ function checkStandalonePetExperience() {
   assert(appTsx.includes("system:weather"), "standalone pet includes weather quick action");
   assert(appTsx.includes("pet-resize-grip"), "standalone pet exposes a direct resize grip");
   assert(styles.includes(".quick-menu-scroll"), "standalone pet menu supports internal scrolling");
+  assert(styles.includes("minmax(0, 1fr)"), "standalone pet menu scroll area can shrink inside the popup");
+  assert(appTsx.includes("quick-menu-close"), "standalone pet menu includes a visible close button");
+  assert(appTsx.includes("onContextMenu"), "standalone pet exposes right-click context actions");
+  assert(appTsx.includes("새로고침"), "standalone pet right-click menu includes refresh");
+  assert(appTsx.includes("quit_app"), "standalone pet right-click menu includes quit");
+  assert(appRust.includes("fn quit_app"), "backend exposes app quit command");
   assert(appTsx.includes("place_pet_window_bottom_right"), "standalone pet defaults to the lower-right screen position");
   assert(appTsx.includes("petSize"), "settings expose pet size control");
   assert(appTsx.includes("petSize: 150"), "standalone pet default size is compact");

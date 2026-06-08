@@ -1202,9 +1202,9 @@ fn set_pet_window_size(
     let pet_size = pet_size.clamp(120, 320);
     if let Some(window) = app.get_webview_window("pet") {
         let menu_open = menu_open.unwrap_or(false);
-        let width = (pet_size + if menu_open { 270 } else { 70 }) as f64;
+        let width = (pet_size + if menu_open { 300 } else { 70 }) as f64;
         let height = if menu_open {
-            (((pet_size as f64 * 1.16) + 110.0).round()).max(360.0)
+            (((pet_size as f64 * 1.16) + 300.0).round()).max(500.0)
         } else {
             ((pet_size as f64 * 1.16) + 90.0).round()
         };
@@ -1226,9 +1226,10 @@ fn set_pet_window_size(
                 let min_y = monitor_position.y;
                 let max_x = monitor_position.x + monitor_size.width as i32 - next_width;
                 let max_x = max_x - (48.0 * scale_factor).round() as i32;
+                let menu_margin = if menu_open { 36.0 } else { 140.0 };
                 let max_y = monitor_position.y + monitor_size.height as i32
                     - next_height
-                    - (140.0 * scale_factor).round() as i32;
+                    - (menu_margin * scale_factor).round() as i32;
                 next_x = next_x.clamp(min_x, max_x.max(min_x));
                 next_y = next_y.clamp(min_y, max_y.max(min_y));
             }
@@ -1318,6 +1319,11 @@ fn open_system_shortcut(kind: String) -> Result<(), String> {
     Err(format!(
         "system shortcut is not supported on this platform: {kind}"
     ))
+}
+
+#[tauri::command]
+fn quit_app(app: AppHandle) {
+    app.exit(0);
 }
 
 #[tauri::command]
@@ -1512,6 +1518,7 @@ pub fn run() {
             move_pet_window,
             drag_pet_window_to,
             open_system_shortcut,
+            quit_app,
             place_pet_window_bottom_right,
             set_resource_monitor_settings,
             app_data_location,

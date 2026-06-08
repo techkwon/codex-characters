@@ -202,6 +202,7 @@ h3 {
   top: 10px;
   left: 10px;
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 6px;
   width: min(220px, calc(100% - 24px));
   max-height: calc(100vh - 20px);
@@ -211,6 +212,34 @@ h3 {
   background: rgba(255, 253, 250, 0.97);
   box-shadow: 0 12px 28px rgba(23, 32, 29, 0.16);
   overflow: hidden;
+}
+
+.quick-menu-header {
+  display: grid;
+  grid-template-columns: 1fr 28px;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.quick-menu-header strong {
+  overflow: hidden;
+  color: #17201d;
+  font-size: 12px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-menu .quick-menu-close {
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: #41534c;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
 }
 
 .quick-action-grid {
@@ -249,6 +278,7 @@ h3 {
 .quick-menu-scroll {
   display: grid;
   gap: 6px;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: 2px;
@@ -643,8 +673,30 @@ small {
 .pet-window .quick-menu {
   top: 8px;
   left: 8px;
-  width: min(220px, calc(100% - 24px));
+  width: min(250px, calc(100% - 24px));
   max-height: calc(100vh - 16px);
+}
+
+.pet-context-menu {
+  position: absolute;
+  right: 14px;
+  bottom: 18px;
+  z-index: 30;
+  display: grid;
+  gap: 6px;
+  width: 128px;
+  padding: 8px;
+  border: 1px solid #becac3;
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.98);
+  box-shadow: 0 12px 28px rgba(23, 32, 29, 0.16);
+}
+
+.pet-context-menu button {
+  justify-content: start;
+  min-height: 32px;
+  padding: 0 10px;
+  text-align: left;
 }
 
 .pet-resize-grip {
